@@ -1,0 +1,2395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Byte Brainiacs — NM College Hackathon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#020617',
+            accent: '#f97316',
+            secondary: '#2dd4bf',
+          },
+          fontFamily: {
+            outfit: ['Outfit', 'sans-serif'],
+            fira: ['Fira Code', 'monospace'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #020617;
+      font-family: 'Outfit', sans-serif;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+
+    /* GRID BACKGROUND */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(45, 212, 191, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45, 212, 191, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* GLOW EFFECTS */
+    .glow-accent { text-shadow: 0 0 20px rgba(249, 115, 22, 0.8), 0 0 40px rgba(249, 115, 22, 0.4); }
+    .glow-secondary { text-shadow: 0 0 20px rgba(45, 212, 191, 0.8), 0 0 40px rgba(45, 212, 191, 0.4); }
+    .glow-box-accent { box-shadow: 0 0 20px rgba(249, 115, 22, 0.3), 0 0 60px rgba(249, 115, 22, 0.1), inset 0 0 20px rgba(249, 115, 22, 0.05); }
+    .glow-box-secondary { box-shadow: 0 0 20px rgba(45, 212, 191, 0.3), 0 0 60px rgba(45, 212, 191, 0.1), inset 0 0 20px rgba(45, 212, 191, 0.05); }
+    .glow-btn { box-shadow: 0 0 25px rgba(249, 115, 22, 0.6), 0 0 50px rgba(249, 115, 22, 0.2); }
+    .glow-btn:hover { box-shadow: 0 0 40px rgba(249, 115, 22, 0.9), 0 0 80px rgba(249, 115, 22, 0.4); }
+
+    /* BORDER GLOW */
+    .border-accent-glow { border: 1px solid rgba(249, 115, 22, 0.4); }
+    .border-secondary-glow { border: 1px solid rgba(45, 212, 191, 0.4); }
+
+    /* SCANLINE EFFECT */
+    .scanlines::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+      pointer-events: none;
+    }
+
+    /* TERMINAL CURSOR */
+    .cursor-blink { animation: blink 1s step-end infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* PULSE RING */
+    .pulse-ring {
+      animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.5); }
+      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(45, 212, 191, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+    }
+
+    /* FLOAT ANIMATION */
+    .float-anim { animation: float 6s ease-in-out infinite; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    /* TYPEWRITER */
+    .typewriter {
+      overflow: hidden;
+      border-right: 2px solid #f97316;
+      white-space: nowrap;
+      animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+      width: fit-content;
+    }
+    @keyframes typing { from { width: 0 } to { width: 100% } }
+    @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #f97316 } }
+
+    /* CARD HOVER */
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+    }
+
+    /* NAV */
+    nav { background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(12px); }
+
+    /* SECTION DIVIDER */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(45,212,191,0.5), transparent);
+    }
+
+    /* PRIZE CARD FIRST */
+    .prize-first {
+      background: linear-gradient(135deg, rgba(249,115,22,0.12), rgba(249,115,22,0.04));
+      border: 1px solid rgba(249,115,22,0.5);
+      transform: scale(1.06);
+    }
+    .prize-first:hover { transform: scale(1.09); }
+
+    /* INPUT STYLES */
+    .cyber-input {
+      background: rgba(45, 212, 191, 0.04);
+      border: 1px solid rgba(45, 212, 191, 0.25);
+      color: #e2e8f0;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+      padding: 0.65rem 1rem;
+      border-radius: 6px;
+      outline: none;
+    }
+    .cyber-input:focus {
+      border-color: rgba(45, 212, 191, 0.7);
+      box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.1);
+    }
+    .cyber-input::placeholder { color: rgba(148,163,184,0.5); }
+
+    /* SELECT */
+    select.cyber-input option { background: #0f172a; color: #e2e8f0; }
+
+    /* FAQ ACCORDION */
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.3s ease;
+      opacity: 0;
+    }
+    .faq-answer.open {
+      max-height: 300px;
+      opacity: 1;
+    }
+
+    /* ADMIN PANEL */
+    #admin-panel { display: none; min-height: 100vh; background: #020617; }
+    #public-site { display: block; }
+
+    /* STATUS DOT */
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2dd4bf;
+      animation: pulse-dot 1.5s ease-in-out infinite;
+      display: inline-block;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.3); }
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: rgba(45,212,191,0.4); border-radius: 3px; }
+
+    /* NOISE OVERLAY */
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.02;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* HERO RADIAL GLOW */
+    .hero-glow {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .hero-glow-2 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(45,212,191,0.06) 0%, transparent 70%);
+      top: 30%;
+      right: 10%;
+      pointer-events: none;
+    }
+
+    /* TABLE */
+    .admin-table th { background: rgba(45,212,191,0.1); color: #2dd4bf; font-family: 'Fira Code', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.75rem 1rem; text-align: left; }
+    .admin-table td { padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'Fira Code', monospace; font-size: 0.82rem; }
+    .admin-table tr:hover td { background: rgba(45,212,191,0.04); }
+
+    /* TOGGLE SWITCH */
+    .toggle-switch { position: relative; display: inline-block; width: 52px; height: 26px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: rgba(100,116,139,0.4);
+      border-radius: 13px;
+      transition: 0.4s;
+    }
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 4px;
+      bottom: 4px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.4s;
+    }
+    input:checked + .toggle-slider { background: rgba(249,115,22,0.7); }
+    input:checked + .toggle-slider:before { transform: translateX(26px); }
+
+    @media (max-width: 768px) {
+      .typewriter { font-size: 0.85rem; }
+      .prize-first { transform: scale(1); }
+    }
+
+    /* ── ADMIN TABS ─────────────────────────────────────── */
+    .admin-tab {
+      color: #64748b;
+      background: transparent;
+      border: 1px solid transparent;
+    }
+    .admin-tab:hover { color: #94a3b8; background: rgba(255,255,255,0.04); }
+    .admin-tab.active-tab {
+      color: #2dd4bf;
+      background: rgba(45,212,191,0.08);
+      border-color: rgba(45,212,191,0.3);
+    }
+    .admin-panel-tab { }
+
+    /* APP FILTER BUTTONS */
+    .app-filter {
+      color: #64748b;
+      border-color: rgba(255,255,255,0.1);
+      background: transparent;
+    }
+    .app-filter:hover { color: #94a3b8; border-color: rgba(255,255,255,0.2); }
+    .app-filter.active-filter {
+      color: #2dd4bf;
+      border-color: rgba(45,212,191,0.4);
+      background: rgba(45,212,191,0.07);
+    }
+
+    /* APPLICATION CARD */
+    .app-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.02);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .app-card.status-approved { border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.03); }
+    .app-card.status-rejected { border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.03); }
+    .app-card.status-pending  { border-color: rgba(234,179,8,0.3);  background: rgba(234,179,8,0.02); }
+
+    /* STATUS BADGE */
+    .badge-approved { background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); }
+    .badge-pending  { background:rgba(234,179,8,0.15); color:#facc15; border:1px solid rgba(234,179,8,0.3); }
+    .badge-rejected { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
+
+    /* TEAM CARD */
+    .team-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      transition: border-color 0.25s, transform 0.25s, background 0.25s;
+    }
+    .team-card:hover { border-color: rgba(45,212,191,0.35); background: rgba(45,212,191,0.04); transform: translateY(-3px); }
+
+    /* SECTION CHIP */
+    .section-core     { background:rgba(45,212,191,0.12); color:#2dd4bf; border:1px solid rgba(45,212,191,0.3); }
+    .section-tech     { background:rgba(249,115,22,0.12); color:#f97316; border:1px solid rgba(249,115,22,0.3); }
+    .section-design   { background:rgba(168,85,247,0.12); color:#c084fc; border:1px solid rgba(168,85,247,0.3); }
+    .section-outreach { background:rgba(234,179,8,0.12);  color:#facc15; border:1px solid rgba(234,179,8,0.3); }
+    .section-logistics{ background:rgba(100,116,139,0.15);color:#94a3b8; border:1px solid rgba(100,116,139,0.3); }
+
+    /* REV BAR */
+    .rev-bar { height:8px; border-radius:4px; background:rgba(255,255,255,0.05); overflow:hidden; }
+    .rev-bar-fill { height:100%; border-radius:4px; transition: width 0.8s ease; }
+
+    /* ── SCHEDULE TIMELINE ─────────────────────────────── */
+    .timeline-track {
+      position: relative;
+    }
+    /* The vertical spine */
+    .timeline-track::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      transform: translateX(-50%);
+      background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(45,212,191,0.5) 8%,
+        rgba(45,212,191,0.5) 92%,
+        transparent 100%);
+    }
+
+    /* Node dot on the spine */
+    .tl-node {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #020617;
+      border: 2px solid #2dd4bf;
+      z-index: 2;
+      top: 50%;
+      margin-top: -7px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .tl-node.accent-node { border-color: #f97316; }
+    .tl-node.active-node {
+      background: #2dd4bf;
+      box-shadow: 0 0 0 4px rgba(45,212,191,0.2), 0 0 16px rgba(45,212,191,0.6);
+    }
+    .tl-node.active-node.accent-node {
+      background: #f97316;
+      box-shadow: 0 0 0 4px rgba(249,115,22,0.2), 0 0 16px rgba(249,115,22,0.6);
+    }
+
+    /* Each row */
+    .tl-row {
+      display: grid;
+      grid-template-columns: 1fr 28px 1fr;
+      align-items: center;
+      gap: 0;
+      position: relative;
+      min-height: 90px;
+      padding: 10px 0;
+    }
+
+    /* Card on either side */
+    .tl-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 14px 18px;
+      transition: border-color 0.25s, background 0.25s, transform 0.25s;
+    }
+    .tl-card:hover {
+      transform: translateY(-2px);
+    }
+    .tl-card.card-left { text-align: right; margin-right: 24px; }
+    .tl-card.card-right { text-align: left; margin-left: 24px; }
+    .tl-card.card-empty { background: transparent; border-color: transparent; box-shadow: none; }
+
+    /* Accent vs secondary variants */
+    .tl-card.v-accent  { border-color: rgba(249,115,22,0.3); background: rgba(249,115,22,0.04); }
+    .tl-card.v-accent:hover { border-color: rgba(249,115,22,0.6); }
+    .tl-card.v-secondary { border-color: rgba(45,212,191,0.3); background: rgba(45,212,191,0.04); }
+    .tl-card.v-secondary:hover { border-color: rgba(45,212,191,0.6); }
+
+    /* Time chip */
+    .tl-time {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+    .tl-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #f1f5f9;
+      line-height: 1.3;
+    }
+    .tl-desc {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+    .tl-badge {
+      display: inline-block;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-bottom: 6px;
+    }
+
+    /* Phase header row */
+    .tl-phase {
+      text-align: center;
+      padding: 18px 0 6px;
+      position: relative;
+      z-index: 3;
+    }
+    .tl-phase-label {
+      display: inline-block;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      padding: 4px 16px;
+      border-radius: 99px;
+      border: 1px solid rgba(45,212,191,0.3);
+      background: #020617;
+      color: #2dd4bf;
+    }
+
+    /* Mobile: single column */
+    @media (max-width: 767px) {
+      .timeline-track::before { left: 16px; }
+      .tl-row { grid-template-columns: 32px 1fr; grid-template-rows: auto; min-height: auto; }
+      .tl-node { left: 16px; top: 22px; margin-top: 0; }
+      .tl-col-left { display: none; }
+      .tl-col-center { /* node column — kept for layout */ }
+      .tl-col-right { }
+      .tl-card.card-left { display: none; }
+      .tl-card.card-right { margin-left: 12px; text-align: left; }
+      .tl-card-mobile-left {
+        display: block !important;
+        margin-left: 12px;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise-overlay"></div>
+
+  <!-- ╔══════════════════════════════╗ -->
+  <!-- ║        PUBLIC SITE           ║ -->
+  <!-- ╚══════════════════════════════╝ -->
+  <div id="public-site">
+
+    <!-- NAV -->
+    <nav class="fixed top-0 left-0 right-0 z-50 border-b border-secondary/10">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 border-2 border-accent rounded-sm flex items-center justify-center">
+            <span class="text-accent font-fira font-bold text-xs">BB</span>
+          </div>
+          <span class="font-fira font-semibold text-secondary text-sm tracking-widest">BYTE_BRAINIACS</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8 font-fira text-xs text-slate-400">
+          <a href="#about" class="hover:text-secondary transition-colors">about</a>
+          <a href="#prizes" class="hover:text-secondary transition-colors">prizes</a>
+          <a href="#schedule" class="hover:text-secondary transition-colors">schedule</a>
+          <a href="#register" class="hover:text-secondary transition-colors">register</a>
+          <a href="#contact" class="hover:text-secondary transition-colors">contact</a>
+        </div>
+        <a href="#register" class="font-fira text-xs bg-accent/10 border border-accent/40 text-accent px-4 py-2 rounded hover:bg-accent hover:text-white transition-all duration-200">
+          ./register
+        </a>
+      </div>
+    </nav>
+
+    <!-- ═══ HERO SECTION ═══ -->
+    <section class="relative min-h-screen grid-bg flex flex-col items-center justify-center px-6 pt-24 pb-16 overflow-hidden">
+      <div class="hero-glow"></div>
+      <div class="hero-glow-2"></div>
+
+      <!-- Corner decorations -->
+      <div class="absolute top-24 left-6 w-16 h-16 border-l-2 border-t-2 border-secondary/30 opacity-60"></div>
+      <div class="absolute top-24 right-6 w-16 h-16 border-r-2 border-t-2 border-secondary/30 opacity-60"></div>
+      <div class="absolute bottom-16 left-6 w-16 h-16 border-l-2 border-b-2 border-secondary/30 opacity-60"></div>
+      <div class="absolute bottom-16 right-6 w-16 h-16 border-r-2 border-b-2 border-secondary/30 opacity-60"></div>
+
+      <!-- Status bar -->
+      <div class="flex items-center gap-6 mb-10 flex-wrap justify-center">
+        <div class="flex items-center gap-2 font-fira text-xs text-secondary bg-secondary/5 border border-secondary/20 px-3 py-1.5 rounded-full">
+          <span class="status-dot"></span>
+          <span>REGISTRATIONS OPEN</span>
+        </div>
+        <div class="flex items-center gap-2 font-fira text-xs text-accent bg-accent/5 border border-accent/20 px-3 py-1.5 rounded-full">
+          <span class="w-2 h-2 bg-accent rounded-full inline-block animate-pulse"></span>
+          <span>24H HACKATHON</span>
+        </div>
+        <div class="font-fira text-xs text-slate-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+          📅 AUG 2025 · MUMBAI
+        </div>
+      </div>
+
+      <!-- Main headline -->
+      <div class="text-center max-w-5xl mx-auto relative z-10">
+        <p class="font-fira text-secondary text-sm tracking-[0.3em] mb-4 uppercase">NM College presents</p>
+        <h1 class="font-outfit font-black text-6xl md:text-8xl lg:text-9xl text-white leading-none mb-4">
+          BYTE<br/><span class="text-accent glow-accent">BRAINIACS</span>
+        </h1>
+        <div class="flex items-center justify-center gap-2 mb-8">
+          <div class="h-px flex-1 max-w-24 bg-gradient-to-r from-transparent to-secondary/50"></div>
+          <p class="font-fira text-secondary text-sm md:text-base tracking-widest">
+            <span id="typewriter-text"></span><span class="cursor-blink text-accent">▋</span>
+          </p>
+          <div class="h-px flex-1 max-w-24 bg-gradient-to-l from-transparent to-secondary/50"></div>
+        </div>
+        <p class="font-outfit text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
+          Build. Break. Innovate. 500+ hackers converging for 24 hours of AI/ML brilliance 
+          across 3 cutting-edge tracks. The future gets coded here.
+        </p>
+
+        <!-- CTA buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="#register"
+             class="glow-btn relative px-10 py-4 bg-accent text-white font-outfit font-bold text-lg rounded-lg transition-all duration-300 hover:scale-105 hover:bg-orange-500">
+            <span class="relative z-10">⚡ REGISTER NOW</span>
+          </a>
+          <a href="#about"
+             class="px-10 py-4 border border-secondary/40 text-secondary font-outfit font-semibold text-lg rounded-lg hover:bg-secondary/10 transition-all duration-300">
+            EXPLORE →
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto w-full">
+        <div class="text-center border-secondary-glow rounded-lg p-5 bg-secondary/3 card-hover glow-box-secondary">
+          <p class="font-outfit font-black text-4xl text-secondary glow-secondary">500+</p>
+          <p class="font-fira text-xs text-slate-400 mt-1">HACKERS</p>
+        </div>
+        <div class="text-center border-accent-glow rounded-lg p-5 bg-accent/3 card-hover glow-box-accent">
+          <p class="font-outfit font-black text-4xl text-accent glow-accent">₹85K</p>
+          <p class="font-fira text-xs text-slate-400 mt-1">PRIZE POOL</p>
+        </div>
+        <div class="text-center border-secondary-glow rounded-lg p-5 bg-secondary/3 card-hover glow-box-secondary">
+          <p class="font-outfit font-black text-4xl text-secondary glow-secondary">3</p>
+          <p class="font-fira text-xs text-slate-400 mt-1">TRACKS</p>
+        </div>
+        <div class="text-center border-accent-glow rounded-lg p-5 bg-accent/3 card-hover glow-box-accent">
+          <p class="font-outfit font-black text-4xl text-accent glow-accent">24H</p>
+          <p class="font-fira text-xs text-slate-400 mt-1">DURATION</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══ ABOUT SECTION ═══ -->
+    <section id="about" class="relative py-28 px-6 grid-bg">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-center">
+
+          <!-- Left: NM College info -->
+          <div>
+            <p class="font-fira text-accent text-xs tracking-[0.4em] mb-4 uppercase">// ABOUT THE HOST</p>
+            <h2 class="font-outfit font-black text-4xl md:text-5xl text-white mb-6 leading-tight">
+              N.M. College of<br/><span class="text-secondary glow-secondary">Commerce & Economics</span>
+            </h2>
+            <p class="font-outfit text-slate-400 text-lg leading-relaxed mb-6">
+              Established in 1946, Narsee Monjee College of Commerce & Economics (NM College) stands as one of Mumbai's most prestigious institutions. Part of the University of Mumbai, it has consistently ranked among the top colleges in Maharashtra.
+            </p>
+            <p class="font-outfit text-slate-400 text-lg leading-relaxed mb-8">
+              Located in Vile Parle (West), Mumbai, NM College's tech community is hosting Byte Brainiacs — its first-ever 24-hour hackathon dedicated entirely to Artificial Intelligence and Machine Learning innovation.
+            </p>
+
+            <!-- Tags -->
+            <div class="flex flex-wrap gap-3">
+              <span class="font-fira text-xs border border-secondary/30 text-secondary px-3 py-1 rounded-full bg-secondary/5">AI / ML</span>
+              <span class="font-fira text-xs border border-secondary/30 text-secondary px-3 py-1 rounded-full bg-secondary/5">Data Science</span>
+              <span class="font-fira text-xs border border-secondary/30 text-secondary px-3 py-1 rounded-full bg-secondary/5">Computer Vision</span>
+              <span class="font-fira text-xs border border-accent/30 text-accent px-3 py-1 rounded-full bg-accent/5">NLP</span>
+              <span class="font-fira text-xs border border-accent/30 text-accent px-3 py-1 rounded-full bg-accent/5">Generative AI</span>
+            </div>
+          </div>
+
+          <!-- Right: Tracks + info cards -->
+          <div class="space-y-4">
+            <!-- Tracks -->
+            <div class="border-secondary-glow rounded-xl p-6 bg-secondary/3 glow-box-secondary card-hover">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-secondary/15 border border-secondary/30 rounded-lg flex items-center justify-center text-2xl shrink-0">🤖</div>
+                <div>
+                  <h3 class="font-outfit font-bold text-white text-lg mb-1">Track 01 — AI for Good</h3>
+                  <p class="font-outfit text-slate-400 text-sm leading-relaxed">Build AI systems that solve real-world social, environmental, or humanitarian challenges using machine learning.</p>
+                </div>
+              </div>
+            </div>
+            <div class="border-accent-glow rounded-xl p-6 bg-accent/3 glow-box-accent card-hover">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-accent/15 border border-accent/30 rounded-lg flex items-center justify-center text-2xl shrink-0">🧠</div>
+                <div>
+                  <h3 class="font-outfit font-bold text-white text-lg mb-1">Track 02 — Intelligent Automation</h3>
+                  <p class="font-outfit text-slate-400 text-sm leading-relaxed">Design autonomous pipelines, smart workflows, and AI-driven process optimization tools.</p>
+                </div>
+              </div>
+            </div>
+            <div class="border-secondary-glow rounded-xl p-6 bg-secondary/3 glow-box-secondary card-hover">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-secondary/15 border border-secondary/30 rounded-lg flex items-center justify-center text-2xl shrink-0">💡</div>
+                <div>
+                  <h3 class="font-outfit font-bold text-white text-lg mb-1">Track 03 — Open Innovation</h3>
+                  <p class="font-outfit text-slate-400 text-sm leading-relaxed">Build anything AI-powered — no constraints, pure creativity. LLMs, vision models, generative art, and beyond.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick facts -->
+            <div class="grid grid-cols-2 gap-4 mt-2">
+              <div class="bg-white/3 border border-white/10 rounded-lg p-4 text-center">
+                <p class="font-fira text-secondary font-semibold text-lg">📍</p>
+                <p class="font-outfit text-white font-semibold text-sm mt-1">Vile Parle (W)</p>
+                <p class="font-fira text-slate-500 text-xs">Mumbai, MH</p>
+              </div>
+              <div class="bg-white/3 border border-white/10 rounded-lg p-4 text-center">
+                <p class="font-fira text-accent font-semibold text-lg">🎓</p>
+                <p class="font-outfit text-white font-semibold text-sm mt-1">All Students</p>
+                <p class="font-fira text-slate-500 text-xs">Any college, any year</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══ PRIZE SECTION ═══ -->
+    <section id="prizes" class="relative py-28 px-6">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-16">
+          <p class="font-fira text-accent text-xs tracking-[0.4em] mb-4 uppercase">// WHAT YOU'RE FIGHTING FOR</p>
+          <h2 class="font-outfit font-black text-4xl md:text-5xl text-white mb-4">
+            Prize <span class="text-accent glow-accent">Pool</span>
+          </h2>
+          <p class="font-outfit text-slate-400 text-lg max-w-xl mx-auto">₹85,000 in prizes across three ranks. Plus certificates, swag kits, and direct mentorship from industry engineers.</p>
+        </div>
+
+        <!-- Prize cards -->
+        <div class="flex flex-col md:flex-row items-end justify-center gap-6">
+
+          <!-- 2nd Place -->
+          <div class="card-hover border-secondary-glow rounded-2xl p-8 bg-secondary/4 glow-box-secondary w-full md:w-72 order-1 md:order-1">
+            <div class="flex items-center gap-2 mb-6">
+              <span class="font-fira text-secondary text-3xl">🥈</span>
+              <div>
+                <p class="font-fira text-secondary text-xs tracking-widest">RANK.02</p>
+                <p class="font-outfit font-bold text-white text-lg">Runner Up</p>
+              </div>
+            </div>
+            <p class="font-outfit font-black text-5xl text-secondary glow-secondary mb-2">₹25K</p>
+            <p class="font-fira text-slate-500 text-xs mb-6">PER TEAM</p>
+            <ul class="space-y-2">
+              <li class="font-outfit text-sm text-slate-400 flex items-center gap-2"><span class="text-secondary">›</span> Cash prize of ₹25,000</li>
+              <li class="font-outfit text-sm text-slate-400 flex items-center gap-2"><span class="text-secondary">›</span> Winner certificate</li>
+              <li class="font-outfit text-sm text-slate-400 flex items-center gap-2"><span class="text-secondary">›</span> Premium swag kit</li>
+              <li class="font-outfit text-sm text-slate-400 flex items-center gap-2"><span class="text-secondary">›</span> Internship referrals</li>
+            </ul>
+          </div>
+
+          <!-- 1st Place — highlighted & scaled up -->
+          <div class="card-hover prize-first rounded-2xl p-8 w-full md:w-80 order-0 md:order-2 relative overflow-hidden">
+            <!-- Crown badge -->
+            <div class="absolute -top-1 left-1/2 -translate-x-1/2 bg-accent text-white font-fira text-xs px-4 py-1 rounded-b-lg tracking-widest">
+              ★ CHAMPION
+            </div>
+            <div class="flex items-center gap-2 mb-6 mt-4">
+              <span class="font-fira text-accent text-3xl float-anim">🏆</span>
+              <div>
+                <p class="font-fira text-accent text-xs tracking-widest">RANK.01</p>
+                <p class="font-outfit font-bold text-white text-lg">Grand Winner</p>
+              </div>
+            </div>
+            <p class="font-outfit font-black text-6xl text-accent glow-accent mb-2">₹50K</p>
+            <p class="font-fira text-slate-500 text-xs mb-6">PER TEAM</p>
+            <ul class="space-y-2">
+              <li class="font-outfit text-sm text-slate-300 flex items-center gap-2"><span class="text-accent">›</span> Cash prize of ₹50,000</li>
+              <li class="font-outfit text-sm text-slate-300 flex items-center gap-2"><span class="text-accent">›</span> Champion trophy & plaque</li>
+              <li class="font-outfit text-sm text-slate-300 flex items-center gap-2"><span class="text-accent">›</span> Exclusive swag bundle</li>
+              <li class="font-outfit text-sm text-slate-300 flex items-center gap-2"><span class="text-accent">›</span> Direct interview at sponsors</li>
+              <li class="font-outfit text-sm text-slate-300 flex items-center gap-2"><span class="text-accent">›</span> NM Hall of Fame listing</li>
+            </ul>
+          </div>
+
+          <!-- 3rd Place -->
+          <div class="card-hover rounded-2xl p-8 bg-white/3 border border-white/15 w-full md:w-72 order-2 md:order-3">
+            <div class="flex items-center gap-2 mb-6">
+              <span class="font-fira text-slate-400 text-3xl">🥉</span>
+              <div>
+                <p class="font-fira text-slate-500 text-xs tracking-widest">RANK.03</p>
+                <p class="font-outfit font-bold text-white text-lg">Second Runner</p>
+              </div>
+            </div>
+            <p class="font-outfit font-black text-5xl text-slate-300 mb-2">₹10K</p>
+            <p class="font-fira text-slate-500 text-xs mb-6">PER TEAM</p>
+            <ul class="space-y-2">
+              <li class="font-outfit text-sm text-slate-400 flex items-center gap-2"><span class="text-slate-500">›</span> Cash prize of ₹10,000</li>
+              <li class="font-outfit text-sm text-slate-400 flex items-center gap-2"><span class="text-slate-500">›</span> Winner certificate</li>
+              <li class="font-outfit text-sm text-slate-400 flex items-center gap-2"><span class="text-slate-500">›</span> Branded swag</li>
+              <li class="font-outfit text-sm text-slate-400 flex items-center gap-2"><span class="text-slate-500">›</span> Mentorship session</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Perks for all -->
+        <div class="mt-12 text-center border border-white/10 bg-white/2 rounded-xl p-6">
+          <p class="font-fira text-secondary text-xs tracking-widest mb-3">// ALL PARTICIPANTS RECEIVE</p>
+          <div class="flex flex-wrap justify-center gap-6 font-outfit text-slate-400 text-sm">
+            <span>🎽 Event T-Shirt</span>
+            <span>📜 Participation Certificate</span>
+            <span>🍕 Meals & Snacks Included</span>
+            <span>🔌 Power & WiFi Access</span>
+            <span>👨‍💻 1:1 Mentorship Sessions</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══ SCHEDULE SECTION ═══ -->
+    <section id="schedule" class="relative py-28 px-6 grid-bg overflow-hidden">
+
+      <!-- Ambient glow blobs -->
+      <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(45,212,191,0.05) 0%,transparent 70%);top:10%;left:-10%;pointer-events:none;"></div>
+      <div style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,0.05) 0%,transparent 70%);bottom:10%;right:-5%;pointer-events:none;"></div>
+
+      <div class="max-w-5xl mx-auto relative z-10">
+
+        <!-- Section header -->
+        <div class="text-center mb-16">
+          <p class="font-fira text-secondary text-xs tracking-[0.4em] mb-4 uppercase">// EVENT_TIMELINE.log</p>
+          <h2 class="font-outfit font-black text-4xl md:text-5xl text-white mb-4">
+            Hackathon <span class="text-secondary glow-secondary">Schedule</span>
+          </h2>
+          <p class="font-outfit text-slate-400 text-lg max-w-xl mx-auto">
+            24 hours. Every minute counts. Here's how the day unfolds — from check-in to closing ceremony.
+          </p>
+          <!-- Date badge -->
+          <div class="flex items-center justify-center gap-4 mt-6 flex-wrap">
+            <div class="flex items-center gap-2 font-fira text-xs border border-secondary/30 bg-secondary/5 text-secondary px-4 py-2 rounded-full">
+              <span>📅</span> <span>Day 1 — 9:00 AM, Aug 16, 2025</span>
+            </div>
+            <div class="flex items-center gap-2 font-fira text-xs border border-accent/30 bg-accent/5 text-accent px-4 py-2 rounded-full">
+              <span>🏁</span> <span>Day 2 — 11:00 AM, Aug 17, 2025</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TIMELINE ── -->
+        <div class="timeline-track">
+
+          <!-- ░░ PHASE 1: KICKOFF ░░ -->
+          <div class="tl-phase">
+            <span class="tl-phase-label">◈ PHASE 01 — KICKOFF</span>
+          </div>
+
+          <!-- ROW 1: Registration & Check-in -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left v-secondary">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.1);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);">DAY 01</div>
+                <div class="tl-time text-secondary">09:00 AM</div>
+                <div class="tl-title">Registration &amp; Check-in</div>
+                <div class="tl-desc">Collect your kit, badge, and T-shirt. Verify college ID at the entry desk. All teams must be present.</div>
+              </div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node active-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right card-empty tl-card-mobile-left" style="display:none">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.1);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);">DAY 01</div>
+                <div class="tl-time text-secondary">09:00 AM</div>
+                <div class="tl-title">Registration &amp; Check-in</div>
+                <div class="tl-desc">Collect your kit, badge, and T-shirt. Verify college ID at the entry desk.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 2: Inaugural Ceremony -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left card-empty"></div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node accent-node active-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right v-accent tl-card-mobile-left">
+                <div class="tl-badge" style="background:rgba(249,115,22,0.1);color:#f97316;border:1px solid rgba(249,115,22,0.3);">DAY 01</div>
+                <div class="tl-time text-accent">10:00 AM</div>
+                <div class="tl-title">Inaugural Ceremony</div>
+                <div class="tl-desc">Welcome address by the Principal, sponsors, and organizing committee. Track briefs and rules walkthrough.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 3: Hacking Begins -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left v-secondary">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.12);color:#2dd4bf;border:1px solid rgba(45,212,191,0.35);">🚀 START</div>
+                <div class="tl-time text-secondary">11:00 AM</div>
+                <div class="tl-title">Hacking Begins</div>
+                <div class="tl-desc">The clock starts. Teams head to their assigned zones. Mentor introductions and first ideation sprint kick off.</div>
+              </div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node active-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right card-empty tl-card-mobile-left" style="display:none">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.12);color:#2dd4bf;border:1px solid rgba(45,212,191,0.35);">🚀 START</div>
+                <div class="tl-time text-secondary">11:00 AM</div>
+                <div class="tl-title">Hacking Begins</div>
+                <div class="tl-desc">The clock starts. Teams head to zones. Mentor introductions kick off.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ░░ PHASE 2: BUILD ░░ -->
+          <div class="tl-phase">
+            <span class="tl-phase-label" style="border-color:rgba(249,115,22,0.35);color:#f97316;">◈ PHASE 02 — BUILD</span>
+          </div>
+
+          <!-- ROW 4: Lunch -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left card-empty"></div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node accent-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right v-accent tl-card-mobile-left">
+                <div class="tl-badge" style="background:rgba(249,115,22,0.1);color:#f97316;border:1px solid rgba(249,115,22,0.3);">DAY 01</div>
+                <div class="tl-time text-accent">1:00 PM</div>
+                <div class="tl-title">Lunch Break</div>
+                <div class="tl-desc">Catered lunch provided at the venue. Network with fellow hackers and mentors during the break.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 5: Mentor Rounds -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left v-secondary">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.1);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);">DAY 01</div>
+                <div class="tl-time text-secondary">3:00 PM</div>
+                <div class="tl-title">Mentor Office Hours</div>
+                <div class="tl-desc">Industry mentors rotate across teams. Book a 10-min 1:1 slot at the help desk to get unstuck or refine your idea.</div>
+              </div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right card-empty tl-card-mobile-left" style="display:none">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.1);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);">DAY 01</div>
+                <div class="tl-time text-secondary">3:00 PM</div>
+                <div class="tl-title">Mentor Office Hours</div>
+                <div class="tl-desc">Industry mentors rotate across teams for 1:1 sessions.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 6: Midpoint Check-in -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left card-empty"></div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node accent-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right v-accent tl-card-mobile-left">
+                <div class="tl-badge" style="background:rgba(249,115,22,0.1);color:#f97316;border:1px solid rgba(249,115,22,0.3);">DAY 01</div>
+                <div class="tl-time text-accent">6:00 PM</div>
+                <div class="tl-title">Midpoint Progress Check</div>
+                <div class="tl-desc">Optional 2-min pitch of your current progress to judges. Great chance for early feedback before the final submission.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 7: Dinner -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left v-secondary">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.1);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);">DAY 01</div>
+                <div class="tl-time text-secondary">8:00 PM</div>
+                <div class="tl-title">Dinner &amp; Snack Break</div>
+                <div class="tl-desc">Full dinner served in the cafeteria. Midnight snack station stays open 24/7. Energy drinks and coffee available.</div>
+              </div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right card-empty tl-card-mobile-left" style="display:none">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.1);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);">DAY 01</div>
+                <div class="tl-time text-secondary">8:00 PM</div>
+                <div class="tl-title">Dinner &amp; Snack Break</div>
+                <div class="tl-desc">Full dinner. Midnight snack station open 24/7.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ░░ PHASE 3: MIDNIGHT ░░ -->
+          <div class="tl-phase">
+            <span class="tl-phase-label">◈ PHASE 03 — MIDNIGHT GRIND</span>
+          </div>
+
+          <!-- ROW 8: Midnight -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left card-empty"></div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node accent-node active-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right v-accent tl-card-mobile-left">
+                <div class="tl-badge" style="background:rgba(249,115,22,0.1);color:#f97316;border:1px solid rgba(249,115,22,0.3);">DAY 01 → 02</div>
+                <div class="tl-time text-accent">12:00 AM</div>
+                <div class="tl-title">Midnight Milestone</div>
+                <div class="tl-desc">Halfway point. Fun mini-challenge announced — optional 15-min side quest with bonus points for winners. Keep building!</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 9: 3 AM Boost -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left v-secondary">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.1);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);">DAY 02</div>
+                <div class="tl-time text-secondary">3:00 AM</div>
+                <div class="tl-title">Caffeine &amp; Code Station</div>
+                <div class="tl-desc">Late-night snacks, chai, coffee, and Red Bull. Chill zone with bean bags if you need a quick recharge before the final push.</div>
+              </div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right card-empty tl-card-mobile-left" style="display:none">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.1);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);">DAY 02</div>
+                <div class="tl-time text-secondary">3:00 AM</div>
+                <div class="tl-title">Caffeine &amp; Code Station</div>
+                <div class="tl-desc">Late-night snacks, chai, coffee. Chill zone with bean bags.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ░░ PHASE 4: FINALE ░░ -->
+          <div class="tl-phase">
+            <span class="tl-phase-label" style="border-color:rgba(249,115,22,0.4);color:#f97316;">◈ PHASE 04 — FINALE</span>
+          </div>
+
+          <!-- ROW 10: Submission Deadline -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left card-empty"></div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node accent-node active-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right v-accent tl-card-mobile-left">
+                <div class="tl-badge" style="background:rgba(249,115,22,0.15);color:#f97316;border:1px solid rgba(249,115,22,0.4);">⏱ DEADLINE</div>
+                <div class="tl-time text-accent">10:30 AM</div>
+                <div class="tl-title">Submission Deadline</div>
+                <div class="tl-desc">All code must be pushed to GitHub and submitted via the portal by 10:30 AM sharp. No late submissions accepted.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 11: Project Presentations -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left v-secondary">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.1);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);">DAY 02</div>
+                <div class="tl-time text-secondary">11:00 AM</div>
+                <div class="tl-title">Project Presentations</div>
+                <div class="tl-desc">Each team presents to the jury panel — 5 min demo + 3 min Q&amp;A. Judging begins across all three tracks simultaneously.</div>
+              </div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right card-empty tl-card-mobile-left" style="display:none">
+                <div class="tl-badge" style="background:rgba(45,212,191,0.1);color:#2dd4bf;border:1px solid rgba(45,212,191,0.3);">DAY 02</div>
+                <div class="tl-time text-secondary">11:00 AM</div>
+                <div class="tl-title">Project Presentations</div>
+                <div class="tl-desc">5 min demo + 3 min Q&amp;A. All three tracks judged simultaneously.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROW 12: Closing Ceremony -->
+          <div class="tl-row">
+            <div class="tl-col-left">
+              <div class="tl-card card-left card-empty"></div>
+            </div>
+            <div class="tl-col-center" style="position:relative;">
+              <div class="tl-node accent-node active-node"></div>
+            </div>
+            <div class="tl-col-right">
+              <div class="tl-card card-right v-accent tl-card-mobile-left">
+                <div class="tl-badge" style="background:rgba(249,115,22,0.12);color:#f97316;border:1px solid rgba(249,115,22,0.4);">🏆 FINALE</div>
+                <div class="tl-time text-accent">1:00 PM</div>
+                <div class="tl-title">Closing &amp; Prize Ceremony</div>
+                <div class="tl-desc">Winners announced live. Certificates distributed. Group photo session. Thank you from the organizing team — you shipped it!</div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /timeline-track -->
+
+        <!-- Bottom note -->
+        <div class="mt-12 text-center">
+          <p class="font-fira text-slate-600 text-xs">Schedule subject to minor changes · All timings in IST (UTC+5:30)</p>
+          <div class="mt-4 inline-flex items-center gap-6 text-xs font-fira text-slate-500">
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block" style="background:rgba(45,212,191,0.6);box-shadow:0 0 6px rgba(45,212,191,0.4);"></span> Secondary track</span>
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block" style="background:rgba(249,115,22,0.6);box-shadow:0 0 6px rgba(249,115,22,0.4);"></span> Key milestone</span>
+            <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full border border-white/30 inline-block bg-white/10"></span> Optional / break</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══ REGISTRATION SECTION ═══ -->
+    <section id="register" class="relative py-28 px-6 grid-bg">
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-12">
+          <p class="font-fira text-accent text-xs tracking-[0.4em] mb-4 uppercase">// SECURE YOUR SLOT</p>
+          <h2 class="font-outfit font-black text-4xl md:text-5xl text-white mb-4">
+            Register for <span class="text-secondary glow-secondary">Byte Brainiacs</span>
+          </h2>
+          <p class="font-outfit text-slate-400 text-lg">Seats are limited. Fill the form below to lock in your spot.</p>
+        </div>
+
+        <!-- Registration form card -->
+        <div class="border-secondary-glow rounded-2xl p-8 bg-secondary/3 glow-box-secondary relative" id="reg-form-container">
+
+          <!-- Closed state (hidden by default) -->
+          <div id="reg-closed" class="hidden text-center py-12">
+            <p class="text-5xl mb-4">🔒</p>
+            <p class="font-outfit font-bold text-white text-2xl mb-2">Registrations Closed</p>
+            <p class="font-outfit text-slate-400">Registration window has ended. Follow us for future events.</p>
+          </div>
+
+          <form id="reg-form" onsubmit="handleRegistration(event)">
+            <!-- Section label -->
+            <div class="flex items-center gap-2 mb-8">
+              <div class="w-2 h-2 bg-secondary rounded-full"></div>
+              <span class="font-fira text-secondary text-xs tracking-widest">PARTICIPANT_DETAILS.form</span>
+            </div>
+
+            <!-- Name -->
+            <div class="mb-5">
+              <label class="font-fira text-xs text-slate-400 tracking-wider block mb-2">NAME <span class="text-accent">*</span></label>
+              <input type="text" id="reg-name" placeholder="Your full name" class="cyber-input" required />
+            </div>
+
+            <!-- Email + Phone -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+              <div>
+                <label class="font-fira text-xs text-slate-400 tracking-wider block mb-2">EMAIL <span class="text-accent">*</span></label>
+                <input type="email" id="reg-email" placeholder="you@college.edu" class="cyber-input" required />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 tracking-wider block mb-2">PHONE <span class="text-accent">*</span></label>
+                <input type="tel" id="reg-phone" placeholder="+91 9XXXXXXXXX" class="cyber-input" required />
+              </div>
+            </div>
+
+            <!-- College -->
+            <div class="mb-5">
+              <label class="font-fira text-xs text-slate-400 tracking-wider block mb-2">COLLEGE / INSTITUTION <span class="text-accent">*</span></label>
+              <input type="text" id="reg-college" placeholder="NM College of Commerce" class="cyber-input" required />
+            </div>
+
+            <!-- Track -->
+            <div class="mb-5">
+              <label class="font-fira text-xs text-slate-400 tracking-wider block mb-2">TRACK <span class="text-accent">*</span></label>
+              <select id="reg-track" class="cyber-input" required>
+                <option value="">-- Select a track --</option>
+                <option value="AI for Good">Track 01 — AI for Good</option>
+                <option value="Intelligent Automation">Track 02 — Intelligent Automation</option>
+                <option value="Open Innovation">Track 03 — Open Innovation</option>
+              </select>
+            </div>
+
+            <!-- Participation mode -->
+            <div class="mb-6">
+              <label class="font-fira text-xs text-slate-400 tracking-wider block mb-3">PARTICIPATION MODE <span class="text-accent">*</span></label>
+              <div class="grid grid-cols-3 gap-3">
+                <label class="mode-btn cursor-pointer">
+                  <input type="radio" name="mode" value="solo" class="sr-only" onchange="updateMode(this)" />
+                  <div class="mode-card border border-white/15 rounded-lg p-3 text-center transition-all duration-200 hover:border-secondary/50">
+                    <p class="text-2xl mb-1">👤</p>
+                    <p class="font-outfit font-semibold text-sm text-white">Solo</p>
+                    <p class="font-fira text-xs text-slate-400 mt-1">1 person</p>
+                    <p class="font-fira text-xs text-accent mt-1">₹25</p>
+                  </div>
+                </label>
+                <label class="mode-btn cursor-pointer">
+                  <input type="radio" name="mode" value="duo" class="sr-only" onchange="updateMode(this)" />
+                  <div class="mode-card border border-white/15 rounded-lg p-3 text-center transition-all duration-200 hover:border-secondary/50">
+                    <p class="text-2xl mb-1">👥</p>
+                    <p class="font-outfit font-semibold text-sm text-white">Duo</p>
+                    <p class="font-fira text-xs text-slate-400 mt-1">2 people</p>
+                    <p class="font-fira text-xs text-accent mt-1">₹50</p>
+                  </div>
+                </label>
+                <label class="mode-btn cursor-pointer">
+                  <input type="radio" name="mode" value="trio" class="sr-only" onchange="updateMode(this)" />
+                  <div class="mode-card border border-white/15 rounded-lg p-3 text-center transition-all duration-200 hover:border-secondary/50">
+                    <p class="text-2xl mb-1">👨‍👩‍👦</p>
+                    <p class="font-outfit font-semibold text-sm text-white">Trio</p>
+                    <p class="font-fira text-xs text-slate-400 mt-1">3 people</p>
+                    <p class="font-fira text-xs text-accent mt-1">₹75</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Teammate fields (dynamic) -->
+            <div id="teammate-fields" class="space-y-5 mb-6 hidden">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="h-px flex-1 bg-white/10"></div>
+                <span class="font-fira text-xs text-slate-500">TEAMMATE DETAILS</span>
+                <div class="h-px flex-1 bg-white/10"></div>
+              </div>
+              <div id="teammate-2-block">
+                <label class="font-fira text-xs text-slate-400 tracking-wider block mb-2">TEAMMATE 2 NAME</label>
+                <input type="text" id="tm2-name" placeholder="Teammate 2 full name" class="cyber-input mb-3" />
+                <label class="font-fira text-xs text-slate-400 tracking-wider block mb-2">TEAMMATE 2 EMAIL</label>
+                <input type="email" id="tm2-email" placeholder="teammate2@college.edu" class="cyber-input" />
+              </div>
+              <div id="teammate-3-block" class="hidden">
+                <label class="font-fira text-xs text-slate-400 tracking-wider block mb-2">TEAMMATE 3 NAME</label>
+                <input type="text" id="tm3-name" placeholder="Teammate 3 full name" class="cyber-input mb-3" />
+                <label class="font-fira text-xs text-slate-400 tracking-wider block mb-2">TEAMMATE 3 EMAIL</label>
+                <input type="email" id="tm3-email" placeholder="teammate3@college.edu" class="cyber-input" />
+              </div>
+            </div>
+
+            <!-- Fee calculator -->
+            <div id="fee-display" class="hidden mb-8 border border-accent/30 bg-accent/5 rounded-lg p-4 flex items-center justify-between">
+              <div>
+                <p class="font-fira text-xs text-slate-400 tracking-widest">REGISTRATION FEE</p>
+                <p class="font-outfit font-black text-3xl text-accent mt-1" id="fee-amount">₹0</p>
+              </div>
+              <div class="text-right">
+                <p class="font-fira text-xs text-slate-500" id="fee-desc">—</p>
+                <p class="font-fira text-xs text-secondary mt-1">Pay at venue / UPI</p>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit"
+              class="w-full py-4 bg-accent text-white font-outfit font-bold text-lg rounded-xl glow-btn transition-all duration-300 hover:bg-orange-500 hover:scale-[1.02]">
+              ⚡ SUBMIT REGISTRATION
+            </button>
+
+            <!-- Success message -->
+            <div id="reg-success" class="hidden mt-6 border border-secondary/40 bg-secondary/5 rounded-xl p-5 text-center">
+              <p class="text-3xl mb-2">🎉</p>
+              <p class="font-outfit font-bold text-secondary text-lg">Registration Confirmed!</p>
+              <p class="font-outfit text-slate-400 text-sm mt-1">You'll receive a confirmation shortly. See you at Byte Brainiacs!</p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══ CONTACT SECTION ═══ -->
+    <section id="contact" class="relative py-28 px-6">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+          <p class="font-fira text-accent text-xs tracking-[0.4em] mb-4 uppercase">// GET IN TOUCH</p>
+          <h2 class="font-outfit font-black text-4xl md:text-5xl text-white mb-4">
+            Contact <span class="text-accent glow-accent">Command</span>
+          </h2>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-12">
+
+          <!-- Terminal contact form -->
+          <div>
+            <div class="border border-secondary/20 rounded-2xl overflow-hidden glow-box-secondary">
+              <!-- Terminal header -->
+              <div class="bg-secondary/10 border-b border-secondary/20 px-4 py-3 flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+                <div class="w-3 h-3 rounded-full bg-secondary/70"></div>
+                <span class="font-fira text-xs text-slate-400 ml-2 tracking-widest">bash — contact@byteBrainiacs</span>
+              </div>
+              <div class="bg-bg/60 p-6">
+                <p class="font-fira text-secondary text-xs mb-1">$ <span class="text-slate-300">./send_message.sh</span></p>
+                <p class="font-fira text-slate-500 text-xs mb-5">Initializing secure channel...</p>
+
+                <form id="contact-form" onsubmit="handleContact(event)" class="space-y-4">
+                  <div>
+                    <label class="font-fira text-xs text-secondary mb-1 block">→ your_name:</label>
+                    <input type="text" id="ct-name" placeholder="Enter your name" class="cyber-input" required />
+                  </div>
+                  <div>
+                    <label class="font-fira text-xs text-secondary mb-1 block">→ your_email:</label>
+                    <input type="email" id="ct-email" placeholder="Enter your email" class="cyber-input" required />
+                  </div>
+                  <div>
+                    <label class="font-fira text-xs text-secondary mb-1 block">→ message:</label>
+                    <textarea id="ct-msg" rows="4" placeholder="Type your message here..." class="cyber-input resize-none" required></textarea>
+                  </div>
+                  <button type="submit" class="w-full py-3 border border-secondary/50 text-secondary font-fira text-sm rounded-lg hover:bg-secondary/10 transition-all duration-200">
+                    <span>$ TRANSMIT_MESSAGE →</span>
+                  </button>
+                  <div id="contact-success" class="hidden text-center">
+                    <p class="font-fira text-secondary text-xs">[ ✓ ] Message transmitted successfully. Expected response: 24–48 hrs.</p>
+                  </div>
+                </form>
+
+                <!-- Contact info lines -->
+                <div class="mt-6 pt-5 border-t border-white/5 space-y-2">
+                  <p class="font-fira text-xs text-slate-500">$ cat contact_info.json</p>
+                  <p class="font-fira text-xs text-slate-400"><span class="text-secondary">"email":</span> <span class="text-accent">"hackathon@nmcollege.ac.in"</span></p>
+                  <p class="font-fira text-xs text-slate-400"><span class="text-secondary">"instagram":</span> <span class="text-accent">"@byte_brainiacs"</span></p>
+                  <p class="font-fira text-xs text-slate-400"><span class="text-secondary">"venue":</span> <span class="text-accent">"NM College, Vile Parle W, Mumbai"</span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQs -->
+          <div>
+            <p class="font-fira text-secondary text-xs tracking-widest mb-6">// FREQUENTLY_ASKED_QUESTIONS</p>
+            <div class="space-y-3" id="faq-container">
+
+              <div class="faq-item border border-white/10 rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-5 flex items-center justify-between hover:bg-white/3 transition-colors">
+                  <span class="font-outfit font-semibold text-white text-sm">Who can participate in Byte Brainiacs?</span>
+                  <span class="text-secondary font-fira text-lg faq-icon transition-transform duration-300">+</span>
+                </button>
+                <div class="faq-answer px-5 pb-5">
+                  <p class="font-outfit text-slate-400 text-sm leading-relaxed">Any undergraduate or postgraduate student from any college in India can participate. You don't need to be from a CS background — all we ask is that you're passionate about AI, ML, or tech in general. The hackathon is open to everyone aged 18+.</p>
+                </div>
+              </div>
+
+              <div class="faq-item border border-white/10 rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-5 flex items-center justify-between hover:bg-white/3 transition-colors">
+                  <span class="font-outfit font-semibold text-white text-sm">What should I bring to the hackathon?</span>
+                  <span class="text-secondary font-fira text-lg faq-icon transition-transform duration-300">+</span>
+                </button>
+                <div class="faq-answer px-5 pb-5">
+                  <p class="font-outfit text-slate-400 text-sm leading-relaxed">Bring your laptop, charger, college ID, and any hardware you plan to use. WiFi, power outlets, meals, and beverages will be provided. Also bring a valid government-issued photo ID for check-in verification.</p>
+                </div>
+              </div>
+
+              <div class="faq-item border border-white/10 rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-5 flex items-center justify-between hover:bg-white/3 transition-colors">
+                  <span class="font-outfit font-semibold text-white text-sm">Can I start working on my project before the event?</span>
+                  <span class="text-secondary font-fira text-lg faq-icon transition-transform duration-300">+</span>
+                </button>
+                <div class="faq-answer px-5 pb-5">
+                  <p class="font-outfit text-slate-400 text-sm leading-relaxed">No pre-built projects are allowed. All code must be written during the 24-hour event window. You may, however, prepare by studying APIs, frameworks, and tools beforehand. Existing open-source libraries can be used with proper attribution.</p>
+                </div>
+              </div>
+
+              <div class="faq-item border border-white/10 rounded-xl overflow-hidden">
+                <button onclick="toggleFaq(this)" class="w-full text-left p-5 flex items-center justify-between hover:bg-white/3 transition-colors">
+                  <span class="font-outfit font-semibold text-white text-sm">How are projects judged and what are the criteria?</span>
+                  <span class="text-secondary font-fira text-lg faq-icon transition-transform duration-300">+</span>
+                </button>
+                <div class="faq-answer px-5 pb-5">
+                  <p class="font-outfit text-slate-400 text-sm leading-relaxed">Projects are evaluated by a panel of industry mentors across four dimensions: Innovation & Creativity (30%), Technical Complexity (25%), Real-World Impact (25%), and Demo & Presentation Quality (20%). Each team gets 5 minutes to present and 3 minutes for Q&A.</p>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Social links -->
+            <div class="mt-8 flex gap-4">
+              <a href="#" class="flex items-center gap-2 font-fira text-xs text-slate-400 hover:text-secondary transition-colors border border-white/10 px-3 py-2 rounded-lg hover:border-secondary/30">
+                📸 Instagram
+              </a>
+              <a href="#" class="flex items-center gap-2 font-fira text-xs text-slate-400 hover:text-secondary transition-colors border border-white/10 px-3 py-2 rounded-lg hover:border-secondary/30">
+                🔗 LinkedIn
+              </a>
+              <a href="#" class="flex items-center gap-2 font-fira text-xs text-slate-400 hover:text-secondary transition-colors border border-white/10 px-3 py-2 rounded-lg hover:border-secondary/30">
+                💬 Discord
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="border-t border-white/5 py-8 px-6">
+      <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="font-fira text-secondary text-xs">BYTE_BRAINIACS</span>
+          <span class="text-slate-700">·</span>
+          <span class="font-outfit text-slate-500 text-xs">NM College, Mumbai © 2025</span>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="#" class="font-outfit text-xs text-slate-600 hover:text-slate-400 transition-colors">Privacy Policy</a>
+          <a href="#" class="font-outfit text-xs text-slate-600 hover:text-slate-400 transition-colors">Terms of Use</a>
+          <button onclick="promptAdmin()" class="font-fira text-xs text-slate-800 hover:text-slate-600 transition-colors tracking-widest">SYS_ADMIN</button>
+        </div>
+      </div>
+    </footer>
+
+  </div><!-- end #public-site -->
+
+  <!-- ╔══════════════════════════════════╗ -->
+  <!-- ║         ADMIN PANEL              ║ -->
+  <!-- ╚══════════════════════════════════╝ -->
+  <div id="admin-panel" class="grid-bg min-h-screen">
+
+    <!-- ── TOP BAR ─────────────────────────────── -->
+    <div style="background:rgba(2,6,23,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(45,212,191,0.12);position:sticky;top:0;z-index:40;">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 border-2 border-accent rounded-sm flex items-center justify-center">
+              <span class="text-accent font-fira font-bold" style="font-size:9px;">BB</span>
+            </div>
+            <div>
+              <p class="font-fira text-secondary text-xs tracking-widest leading-none">BYTE_BRAINIACS</p>
+              <p class="font-fira text-accent" style="font-size:9px;letter-spacing:0.15em;">ROOT ACCESS</p>
+            </div>
+          </div>
+          <!-- Tabs -->
+          <nav class="hidden md:flex items-center gap-1 ml-6">
+            <button onclick="adminTab('overview')" id="tab-overview" class="admin-tab active-tab font-fira text-xs px-4 py-2 rounded-lg transition-all">📊 Overview</button>
+            <button onclick="adminTab('applications')" id="tab-applications" class="admin-tab font-fira text-xs px-4 py-2 rounded-lg transition-all">📋 Applications</button>
+            <button onclick="adminTab('revenue')" id="tab-revenue" class="admin-tab font-fira text-xs px-4 py-2 rounded-lg transition-all">💰 Revenue</button>
+            <button onclick="adminTab('editor')" id="tab-editor" class="admin-tab font-fira text-xs px-4 py-2 rounded-lg transition-all">✏️ Site Editor</button>
+            <button onclick="adminTab('team')" id="tab-team" class="admin-tab font-fira text-xs px-4 py-2 rounded-lg transition-all">👥 Our Team</button>
+          </nav>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 border border-white/10 bg-white/3 rounded-lg px-3 py-2">
+            <p class="font-fira text-xs text-slate-400">REGS</p>
+            <p class="font-fira text-xs" id="reg-toggle-status" style="color:#2dd4bf;">OPEN</p>
+            <label class="toggle-switch" style="margin-left:4px;">
+              <input type="checkbox" id="admin-reg-toggle" onchange="toggleRegistrations(this)" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <button onclick="adminLogout()" class="font-fira text-xs border border-accent/40 text-accent px-3 py-2 rounded-lg hover:bg-accent/10 transition-colors">LOGOUT →</button>
+        </div>
+      </div>
+      <!-- Mobile tab row -->
+      <div class="md:hidden flex overflow-x-auto gap-1 px-4 pb-3">
+        <button onclick="adminTab('overview')" id="tab-overview-m" class="admin-tab active-tab font-fira text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all">📊 Overview</button>
+        <button onclick="adminTab('applications')" id="tab-applications-m" class="admin-tab font-fira text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all">📋 Apps</button>
+        <button onclick="adminTab('revenue')" id="tab-revenue-m" class="admin-tab font-fira text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all">💰 Revenue</button>
+        <button onclick="adminTab('editor')" id="tab-editor-m" class="admin-tab font-fira text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all">✏️ Editor</button>
+        <button onclick="adminTab('team')" id="tab-team-m" class="admin-tab font-fira text-xs px-3 py-1.5 rounded-lg whitespace-nowrap transition-all">👥 Team</button>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 py-10">
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- TAB 1: OVERVIEW                        -->
+      <!-- ══════════════════════════════════════ -->
+      <div id="panel-overview" class="admin-panel-tab">
+
+        <div class="mb-8">
+          <h2 class="font-outfit font-black text-2xl text-white">Dashboard <span class="text-secondary">Overview</span></h2>
+          <p class="font-fira text-slate-500 text-xs mt-1">Real-time stats · Byte Brainiacs 2025</p>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+          <div class="border-accent-glow rounded-xl p-5 bg-accent/4 glow-box-accent">
+            <p class="font-fira text-xs text-slate-400 tracking-widest mb-2">TOTAL REVENUE</p>
+            <p class="font-outfit font-black text-3xl text-accent" id="admin-revenue">₹0</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">from registrations</p>
+          </div>
+          <div class="border-secondary-glow rounded-xl p-5 bg-secondary/4 glow-box-secondary">
+            <p class="font-fira text-xs text-slate-400 tracking-widest mb-2">TOTAL TEAMS</p>
+            <p class="font-outfit font-black text-3xl text-secondary" id="admin-total-reg">0</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">registered</p>
+          </div>
+          <div class="border border-white/10 rounded-xl p-5 bg-white/2">
+            <p class="font-fira text-xs text-slate-400 tracking-widest mb-2">PARTICIPANTS</p>
+            <p class="font-outfit font-black text-3xl text-white" id="admin-total-ppl">0</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">individual hackers</p>
+          </div>
+          <div class="border border-white/10 rounded-xl p-5 bg-white/2">
+            <p class="font-fira text-xs text-slate-400 tracking-widest mb-2">SLOTS LEFT</p>
+            <p class="font-outfit font-black text-3xl text-white" id="admin-slots">500</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">of 500 capacity</p>
+          </div>
+        </div>
+
+        <!-- Approval status row -->
+        <div class="grid grid-cols-3 gap-5 mb-8">
+          <div class="border border-green-500/30 rounded-xl p-5 bg-green-500/5">
+            <p class="font-fira text-xs text-green-400 tracking-widest mb-2">✓ APPROVED</p>
+            <p class="font-outfit font-black text-3xl text-green-400" id="ov-approved">0</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">teams confirmed</p>
+          </div>
+          <div class="border border-yellow-500/30 rounded-xl p-5 bg-yellow-500/5">
+            <p class="font-fira text-xs text-yellow-400 tracking-widest mb-2">⏳ PENDING</p>
+            <p class="font-outfit font-black text-3xl text-yellow-400" id="ov-pending">0</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">awaiting review</p>
+          </div>
+          <div class="border border-red-500/30 rounded-xl p-5 bg-red-500/5">
+            <p class="font-fira text-xs text-red-400 tracking-widest mb-2">✗ REJECTED</p>
+            <p class="font-outfit font-black text-3xl text-red-400" id="ov-rejected">0</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">not accepted</p>
+          </div>
+        </div>
+
+        <!-- Track breakdown -->
+        <div class="grid md:grid-cols-3 gap-5 mb-8">
+          <div class="border border-white/10 bg-white/2 rounded-xl p-5">
+            <p class="font-fira text-xs text-slate-500 mb-1">TRACK 01</p>
+            <p class="font-outfit font-bold text-white mb-3">AI for Good</p>
+            <div class="flex items-end gap-3">
+              <p class="font-outfit font-black text-3xl text-secondary" id="track-1-count">0</p>
+              <p class="font-fira text-xs text-slate-500 mb-1">teams</p>
+            </div>
+            <div class="mt-3 h-1.5 bg-white/5 rounded-full overflow-hidden">
+              <div id="track-1-bar" class="h-full rounded-full transition-all duration-700" style="width:0%;background:linear-gradient(90deg,#2dd4bf,#0d9488);"></div>
+            </div>
+          </div>
+          <div class="border border-white/10 bg-white/2 rounded-xl p-5">
+            <p class="font-fira text-xs text-slate-500 mb-1">TRACK 02</p>
+            <p class="font-outfit font-bold text-white mb-3">Intelligent Automation</p>
+            <div class="flex items-end gap-3">
+              <p class="font-outfit font-black text-3xl text-secondary" id="track-2-count">0</p>
+              <p class="font-fira text-xs text-slate-500 mb-1">teams</p>
+            </div>
+            <div class="mt-3 h-1.5 bg-white/5 rounded-full overflow-hidden">
+              <div id="track-2-bar" class="h-full rounded-full transition-all duration-700" style="width:0%;background:linear-gradient(90deg,#f97316,#ea580c);"></div>
+            </div>
+          </div>
+          <div class="border border-white/10 bg-white/2 rounded-xl p-5">
+            <p class="font-fira text-xs text-slate-500 mb-1">TRACK 03</p>
+            <p class="font-outfit font-bold text-white mb-3">Open Innovation</p>
+            <div class="flex items-end gap-3">
+              <p class="font-outfit font-black text-3xl text-secondary" id="track-3-count">0</p>
+              <p class="font-fira text-xs text-slate-500 mb-1">teams</p>
+            </div>
+            <div class="mt-3 h-1.5 bg-white/5 rounded-full overflow-hidden">
+              <div id="track-3-bar" class="h-full rounded-full transition-all duration-700" style="width:0%;background:linear-gradient(90deg,#2dd4bf,#0d9488);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode breakdown -->
+        <div class="border border-white/10 bg-white/2 rounded-xl p-6">
+          <p class="font-fira text-secondary text-xs tracking-widest mb-5">// PARTICIPATION_MODE_BREAKDOWN</p>
+          <div class="grid grid-cols-3 gap-6">
+            <div class="text-center">
+              <p class="text-3xl mb-2">👤</p>
+              <p class="font-outfit font-black text-2xl text-white" id="ov-solo">0</p>
+              <p class="font-fira text-xs text-slate-500 mt-1">SOLO</p>
+            </div>
+            <div class="text-center">
+              <p class="text-3xl mb-2">👥</p>
+              <p class="font-outfit font-black text-2xl text-white" id="ov-duo">0</p>
+              <p class="font-fira text-xs text-slate-500 mt-1">DUO</p>
+            </div>
+            <div class="text-center">
+              <p class="text-3xl mb-2">👨‍👩‍👦</p>
+              <p class="font-outfit font-black text-2xl text-white" id="ov-trio">0</p>
+              <p class="font-fira text-xs text-slate-500 mt-1">TRIO</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- TAB 2: APPLICATIONS (APPROVE/REJECT)   -->
+      <!-- ══════════════════════════════════════ -->
+      <div id="panel-applications" class="admin-panel-tab hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 class="font-outfit font-black text-2xl text-white">Registration <span class="text-secondary">Applications</span></h2>
+            <p class="font-fira text-slate-500 text-xs mt-1">Review and approve or reject each application individually</p>
+          </div>
+          <!-- Filter buttons -->
+          <div class="flex items-center gap-2">
+            <button onclick="filterApps('all')" id="filter-all" class="app-filter active-filter font-fira text-xs px-3 py-2 rounded-lg border transition-all">All</button>
+            <button onclick="filterApps('pending')" id="filter-pending" class="app-filter font-fira text-xs px-3 py-2 rounded-lg border transition-all">⏳ Pending</button>
+            <button onclick="filterApps('approved')" id="filter-approved" class="app-filter font-fira text-xs px-3 py-2 rounded-lg border transition-all">✓ Approved</button>
+            <button onclick="filterApps('rejected')" id="filter-rejected" class="app-filter font-fira text-xs px-3 py-2 rounded-lg border transition-all">✗ Rejected</button>
+          </div>
+        </div>
+
+        <!-- Applications list -->
+        <div id="applications-list" class="space-y-4"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- TAB 3: REVENUE                         -->
+      <!-- ══════════════════════════════════════ -->
+      <div id="panel-revenue" class="admin-panel-tab hidden">
+        <div class="mb-8">
+          <h2 class="font-outfit font-black text-2xl text-white">Revenue <span class="text-accent">Analytics</span></h2>
+          <p class="font-fira text-slate-500 text-xs mt-1">Financial breakdown of all registration income</p>
+        </div>
+
+        <!-- Revenue KPIs -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+          <div class="border-accent-glow rounded-xl p-5 bg-accent/4 glow-box-accent col-span-2 md:col-span-1">
+            <p class="font-fira text-xs text-slate-400 tracking-widest mb-2">TOTAL COLLECTED</p>
+            <p class="font-outfit font-black text-4xl text-accent" id="rev-total">₹0</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">all registrations</p>
+          </div>
+          <div class="border border-green-500/30 rounded-xl p-5 bg-green-500/5">
+            <p class="font-fira text-xs text-green-400 tracking-widest mb-2">CONFIRMED</p>
+            <p class="font-outfit font-black text-3xl text-green-400" id="rev-approved">₹0</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">approved teams</p>
+          </div>
+          <div class="border border-yellow-500/30 rounded-xl p-5 bg-yellow-500/5">
+            <p class="font-fira text-xs text-yellow-400 tracking-widest mb-2">PENDING</p>
+            <p class="font-outfit font-black text-3xl text-yellow-400" id="rev-pending">₹0</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">awaiting review</p>
+          </div>
+          <div class="border border-red-500/30 rounded-xl p-5 bg-red-500/5">
+            <p class="font-fira text-xs text-red-400 tracking-widest mb-2">REFUNDABLE</p>
+            <p class="font-outfit font-black text-3xl text-red-400" id="rev-rejected">₹0</p>
+            <p class="font-fira text-xs text-slate-500 mt-1">rejected teams</p>
+          </div>
+        </div>
+
+        <!-- Revenue by track + mode -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+          <!-- By track -->
+          <div class="border border-white/10 bg-white/2 rounded-xl p-6">
+            <p class="font-fira text-secondary text-xs tracking-widest mb-5">// REVENUE_BY_TRACK</p>
+            <div class="space-y-4" id="rev-by-track"></div>
+          </div>
+          <!-- By mode -->
+          <div class="border border-white/10 bg-white/2 rounded-xl p-6">
+            <p class="font-fira text-accent text-xs tracking-widest mb-5">// REVENUE_BY_MODE</p>
+            <div class="space-y-4" id="rev-by-mode"></div>
+          </div>
+        </div>
+
+        <!-- Transaction log -->
+        <div class="border border-secondary/20 rounded-xl overflow-hidden">
+          <div class="bg-secondary/8 border-b border-secondary/20 px-6 py-4 flex items-center justify-between">
+            <span class="font-fira text-secondary text-xs tracking-widest">TRANSACTION_LOG</span>
+            <span class="font-fira text-slate-500 text-xs" id="rev-log-count">0 transactions</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="admin-table w-full">
+              <thead>
+                <tr>
+                  <th>TXN ID</th>
+                  <th>Name</th>
+                  <th>Mode</th>
+                  <th>Track</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="rev-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- TAB 4: SITE EDITOR                     -->
+      <!-- ══════════════════════════════════════ -->
+      <div id="panel-editor" class="admin-panel-tab hidden">
+        <div class="mb-8">
+          <h2 class="font-outfit font-black text-2xl text-white">Site <span class="text-secondary">Editor</span></h2>
+          <p class="font-fira text-slate-500 text-xs mt-1">Edit key details shown on the public website in real-time</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+
+          <!-- Event Details -->
+          <div class="border border-secondary/20 bg-secondary/3 rounded-xl p-6">
+            <p class="font-fira text-secondary text-xs tracking-widest mb-5">// EVENT_DETAILS</p>
+            <div class="space-y-4">
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Event Date Label</label>
+                <input id="ed-date" type="text" class="cyber-input" value="AUG 2025 · MUMBAI" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Event Venue</label>
+                <input id="ed-venue" type="text" class="cyber-input" value="NM College, Vile Parle W, Mumbai" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Contact Email</label>
+                <input id="ed-email" type="text" class="cyber-input" value="hackathon@nmcollege.ac.in" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Instagram Handle</label>
+                <input id="ed-insta" type="text" class="cyber-input" value="@byte_brainiacs" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Prize Pool -->
+          <div class="border border-accent/20 bg-accent/3 rounded-xl p-6">
+            <p class="font-fira text-accent text-xs tracking-widest mb-5">// PRIZE_POOL_EDITOR</p>
+            <div class="space-y-4">
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">1st Prize (₹)</label>
+                <input id="ed-prize1" type="number" class="cyber-input" value="50000" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">2nd Prize (₹)</label>
+                <input id="ed-prize2" type="number" class="cyber-input" value="25000" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">3rd Prize (₹)</label>
+                <input id="ed-prize3" type="number" class="cyber-input" value="10000" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Max Participants</label>
+                <input id="ed-capacity" type="number" class="cyber-input" value="500" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero text editor -->
+          <div class="border border-white/10 bg-white/2 rounded-xl p-6">
+            <p class="font-fira text-slate-400 text-xs tracking-widest mb-5">// HERO_CONTENT</p>
+            <div class="space-y-4">
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Hero Subtitle Line</label>
+                <input id="ed-subtitle" type="text" class="cyber-input" value="NM College presents" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Hero Description</label>
+                <textarea id="ed-desc" rows="3" class="cyber-input resize-none">Build. Break. Innovate. 500+ hackers converging for 24 hours of AI/ML brilliance across 3 cutting-edge tracks. The future gets coded here.</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- About section text -->
+          <div class="border border-white/10 bg-white/2 rounded-xl p-6">
+            <p class="font-fira text-slate-400 text-xs tracking-widest mb-5">// ABOUT_SECTION</p>
+            <div class="space-y-4">
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">About Paragraph 1</label>
+                <textarea id="ed-about1" rows="3" class="cyber-input resize-none">Established in 1946, Narsee Monjee College of Commerce & Economics (NM College) stands as one of Mumbai's most prestigious institutions. Part of the University of Mumbai, it has consistently ranked among the top colleges in Maharashtra.</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Apply button -->
+        <div class="mt-8 flex items-center gap-4">
+          <button onclick="applyEditorChanges()" class="px-8 py-3 bg-secondary text-bg font-outfit font-bold rounded-xl hover:opacity-90 transition-opacity glow-box-secondary">
+            ⚡ Apply Changes to Site
+          </button>
+          <button onclick="resetEditorChanges()" class="px-8 py-3 border border-white/20 text-slate-400 font-outfit font-semibold rounded-xl hover:border-white/40 transition-colors">
+            ↩ Reset to Defaults
+          </button>
+          <p id="editor-saved-msg" class="font-fira text-secondary text-xs hidden">[ ✓ Changes applied to public site ]</p>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- TAB 5: OUR TEAM                        -->
+      <!-- ══════════════════════════════════════ -->
+      <div id="panel-team" class="admin-panel-tab hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 class="font-outfit font-black text-2xl text-white">Byte Brainiacs <span class="text-secondary">Team</span></h2>
+            <p class="font-fira text-slate-500 text-xs mt-1">The people building and running this hackathon</p>
+          </div>
+          <button onclick="openAddMember()" class="font-fira text-xs bg-secondary/10 border border-secondary/40 text-secondary px-4 py-2 rounded-lg hover:bg-secondary/20 transition-colors">
+            + Add Member
+          </button>
+        </div>
+
+        <!-- Team grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" id="team-grid"></div>
+
+        <!-- Add/Edit member modal -->
+        <div id="member-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(2,6,23,0.85);backdrop-filter:blur(6px);">
+          <div class="border border-secondary/30 bg-slate-900 rounded-2xl p-7 w-full max-w-md glow-box-secondary">
+            <p class="font-fira text-secondary text-xs tracking-widest mb-5" id="modal-title">// ADD_MEMBER</p>
+            <div class="space-y-4">
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Full Name *</label>
+                <input id="mm-name" type="text" class="cyber-input" placeholder="e.g. Arjun Sharma" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Role / Position *</label>
+                <input id="mm-role" type="text" class="cyber-input" placeholder="e.g. Lead Organizer" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Department</label>
+                <input id="mm-dept" type="text" class="cyber-input" placeholder="e.g. Computer Science, Year 3" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">LinkedIn URL</label>
+                <input id="mm-linkedin" type="text" class="cyber-input" placeholder="https://linkedin.com/in/..." />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Avatar Emoji</label>
+                <input id="mm-avatar" type="text" class="cyber-input" placeholder="e.g. 🧑‍💻" maxlength="4" />
+              </div>
+              <div>
+                <label class="font-fira text-xs text-slate-400 block mb-1">Team Section</label>
+                <select id="mm-section" class="cyber-input">
+                  <option value="Core">🔷 Core Team</option>
+                  <option value="Tech">💻 Tech Team</option>
+                  <option value="Design">🎨 Design Team</option>
+                  <option value="Outreach">📣 Outreach Team</option>
+                  <option value="Logistics">📦 Logistics Team</option>
+                </select>
+              </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+              <button onclick="saveMember()" class="flex-1 py-3 bg-secondary text-bg font-outfit font-bold rounded-xl hover:opacity-90 transition-opacity">Save Member</button>
+              <button onclick="closeMemberModal()" class="px-5 py-3 border border-white/20 text-slate-400 rounded-xl hover:border-white/40 transition-colors font-outfit">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- end #admin-panel -->
+
+  <!-- ╔══════════════════════════════════╗ -->
+  <!-- ║         JAVASCRIPT LOGIC         ║ -->
+  <!-- ╚══════════════════════════════════╝ -->
+  <script>
+
+    // ─── STATE ───────────────────────────────────────────────────────────────
+    let registrations = [
+      // Mock seed data
+      { id: 1, name: 'Arjun Sharma', email: 'arjun.s@nmcollege.ac.in', phone: '9876543210', college: 'NM College, Mumbai', track: 'AI for Good', mode: 'duo', fee: 50, tm2: 'Priya Mehta', date: '2025-07-12' },
+      { id: 2, name: 'Riya Desai', email: 'riya.d@somaiya.edu', phone: '9123456780', college: 'K.J. Somaiya College', track: 'Open Innovation', mode: 'solo', fee: 25, tm2: '', date: '2025-07-13' },
+      { id: 3, name: 'Kabir Nair', email: 'kabir.n@iitb.ac.in', phone: '9234567891', college: 'IIT Bombay', track: 'Intelligent Automation', mode: 'trio', fee: 75, tm2: 'Sneha Joshi', date: '2025-07-14' },
+      { id: 4, name: 'Ananya Pillai', email: 'ananya.p@vjti.ac.in', phone: '9345678902', college: 'VJTI Mumbai', track: 'AI for Good', mode: 'duo', fee: 50, tm2: 'Dev Patel', date: '2025-07-14' },
+      { id: 5, name: 'Rahul Gupta', email: 'rahul.g@spit.ac.in', phone: '9456789013', college: 'SPIT Mumbai', track: 'Open Innovation', mode: 'solo', fee: 25, tm2: '', date: '2025-07-15' },
+    ];
+    let registrationOpen = true;
+    let nextId = 6;
+    let selectedMode = null;
+
+    // ─── TYPEWRITER ──────────────────────────────────────────────────────────
+    const phrases = [
+      'Build the future of AI.',
+      'Code for 24 hours.',
+      'Win ₹50,000.',
+      'Ship something epic.',
+    ];
+    let phraseIdx = 0, charIdx = 0, deleting = false;
+    const tw = document.getElementById('typewriter-text');
+
+    function typeLoop() {
+      const current = phrases[phraseIdx];
+      if (!deleting) {
+        tw.textContent = current.slice(0, ++charIdx);
+        if (charIdx === current.length) {
+          deleting = true;
+          setTimeout(typeLoop, 1800);
+          return;
+        }
+      } else {
+        tw.textContent = current.slice(0, --charIdx);
+        if (charIdx === 0) {
+          deleting = false;
+          phraseIdx = (phraseIdx + 1) % phrases.length;
+        }
+      }
+      setTimeout(typeLoop, deleting ? 40 : 70);
+    }
+    typeLoop();
+
+    // ─── MODE SELECTOR ───────────────────────────────────────────────────────
+    function updateMode(radio) {
+      selectedMode = radio.value;
+
+      // Visual update for mode cards
+      document.querySelectorAll('.mode-card').forEach(c => {
+        c.classList.remove('border-secondary', 'bg-secondary/10', 'border-accent', 'bg-accent/10');
+        c.classList.add('border-white/15');
+      });
+      const active = radio.closest('.mode-btn').querySelector('.mode-card');
+      active.classList.remove('border-white/15');
+      active.classList.add('border-secondary', 'bg-secondary/8');
+
+      const tmFields = document.getElementById('teammate-fields');
+      const tm3 = document.getElementById('teammate-3-block');
+
+      if (selectedMode === 'solo') {
+        tmFields.classList.add('hidden');
+        tm3.classList.add('hidden');
+      } else if (selectedMode === 'duo') {
+        tmFields.classList.remove('hidden');
+        tm3.classList.add('hidden');
+      } else if (selectedMode === 'trio') {
+        tmFields.classList.remove('hidden');
+        tm3.classList.remove('hidden');
+      }
+
+      updateFee();
+    }
+
+    function updateFee() {
+      const feeMap = { solo: 25, duo: 50, trio: 75 };
+      const descMap = { solo: '1 participant × ₹25', duo: '2 participants × ₹25', trio: '3 participants × ₹25' };
+      const feeDisplay = document.getElementById('fee-display');
+      const feeAmount = document.getElementById('fee-amount');
+      const feeDesc = document.getElementById('fee-desc');
+
+      if (selectedMode && feeMap[selectedMode]) {
+        feeDisplay.classList.remove('hidden');
+        feeAmount.textContent = '₹' + feeMap[selectedMode];
+        feeDesc.textContent = descMap[selectedMode];
+      } else {
+        feeDisplay.classList.add('hidden');
+      }
+    }
+
+    // ─── REGISTRATION HANDLER ────────────────────────────────────────────────
+    function handleRegistration(e) {
+      e.preventDefault();
+      if (!selectedMode) {
+        alert('Please select a participation mode (Solo, Duo, or Trio).');
+        return;
+      }
+
+      const feeMap = { solo: 25, duo: 50, trio: 75 };
+      const entry = {
+        id: nextId++,
+        name: document.getElementById('reg-name').value.trim(),
+        email: document.getElementById('reg-email').value.trim(),
+        phone: document.getElementById('reg-phone').value.trim(),
+        college: document.getElementById('reg-college').value.trim(),
+        track: document.getElementById('reg-track').value,
+        mode: selectedMode,
+        fee: feeMap[selectedMode],
+        tm2: selectedMode !== 'solo' ? document.getElementById('tm2-name').value.trim() : '',
+        date: new Date().toISOString().slice(0, 10),
+        status: 'pending',
+      };
+
+      registrations.push(entry);
+
+      // Show success
+      document.getElementById('reg-form').style.opacity = '0.4';
+      document.getElementById('reg-form').style.pointerEvents = 'none';
+      document.getElementById('reg-success').classList.remove('hidden');
+
+      // Reset after 4s
+      setTimeout(() => {
+        document.getElementById('reg-form').reset();
+        document.getElementById('reg-form').style.opacity = '1';
+        document.getElementById('reg-form').style.pointerEvents = 'auto';
+        document.getElementById('reg-success').classList.add('hidden');
+        document.getElementById('fee-display').classList.add('hidden');
+        document.getElementById('teammate-fields').classList.add('hidden');
+        document.querySelectorAll('.mode-card').forEach(c => {
+          c.classList.remove('border-secondary', 'bg-secondary/8');
+          c.classList.add('border-white/15');
+        });
+        selectedMode = null;
+      }, 4000);
+    }
+
+    // ─── CONTACT HANDLER ─────────────────────────────────────────────────────
+    function handleContact(e) {
+      e.preventDefault();
+      document.getElementById('contact-form').style.opacity = '0.5';
+      document.getElementById('contact-form').style.pointerEvents = 'none';
+      document.getElementById('contact-success').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('contact-form').reset();
+        document.getElementById('contact-form').style.opacity = '1';
+        document.getElementById('contact-form').style.pointerEvents = 'auto';
+        document.getElementById('contact-success').classList.add('hidden');
+      }, 4000);
+    }
+
+    // ─── FAQ TOGGLE ──────────────────────────────────────────────────────────
+    function toggleFaq(btn) {
+      const answer = btn.nextElementSibling;
+      const icon = btn.querySelector('.faq-icon');
+      const isOpen = answer.classList.contains('open');
+
+      // Close all
+      document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+      document.querySelectorAll('.faq-icon').forEach(i => { i.textContent = '+'; i.style.transform = ''; });
+
+      if (!isOpen) {
+        answer.classList.add('open');
+        icon.textContent = '−';
+      }
+    }
+
+    // ─── ADMIN AUTH ──────────────────────────────────────────────────────────
+    function promptAdmin() {
+      const pw = prompt('🔐 SYS_ADMIN — Enter password:');
+      if (pw === null) return;
+      if (pw === 'admin123') {
+        document.getElementById('public-site').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        renderAdminDashboard();
+      } else {
+        alert('❌ Access denied. Incorrect password.');
+      }
+    }
+
+    function adminLogout() {
+      document.getElementById('admin-panel').style.display = 'none';
+      document.getElementById('public-site').style.display = 'block';
+    }
+
+    // ─── TOGGLE REGISTRATIONS ────────────────────────────────────────────────
+    function toggleRegistrations(checkbox) {
+      registrationOpen = !checkbox.checked;
+      const statusEl = document.getElementById('reg-toggle-status');
+
+      if (!registrationOpen) {
+        // Close registrations on public site
+        document.getElementById('reg-form').classList.add('hidden');
+        document.getElementById('reg-closed').classList.remove('hidden');
+        statusEl.textContent = 'CLOSED';
+        statusEl.className = 'font-fira text-xs text-accent';
+      } else {
+        document.getElementById('reg-form').classList.remove('hidden');
+        document.getElementById('reg-closed').classList.add('hidden');
+        statusEl.textContent = 'OPEN';
+        statusEl.className = 'font-fira text-xs text-secondary';
+      }
+    }
+
+    // ─── TEAM DATA ───────────────────────────────────────────────────────────
+    let teamMembers = [
+      { id: 1, name: 'Aarav Mehta',     role: 'Lead Organizer',     dept: 'Computer Science, Year 4', linkedin: '#', avatar: '🧑‍💻', section: 'Core' },
+      { id: 2, name: 'Priya Desai',     role: 'Co-Organizer',       dept: 'Information Technology, Year 4', linkedin: '#', avatar: '👩‍💻', section: 'Core' },
+      { id: 3, name: 'Rohan Nair',      role: 'Tech Lead',          dept: 'Computer Science, Year 3', linkedin: '#', avatar: '⚙️',   section: 'Tech' },
+      { id: 4, name: 'Sneha Joshi',     role: 'Full-Stack Dev',     dept: 'Information Technology, Year 3', linkedin: '#', avatar: '🛠️',  section: 'Tech' },
+      { id: 5, name: 'Dev Kapoor',      role: 'UI/UX Designer',     dept: 'BSc IT, Year 3',           linkedin: '#', avatar: '🎨',   section: 'Design' },
+      { id: 6, name: 'Ananya Singh',    role: 'Graphic Designer',   dept: 'BSc IT, Year 2',           linkedin: '#', avatar: '✏️',   section: 'Design' },
+      { id: 7, name: 'Kabir Sharma',    role: 'Outreach Head',      dept: 'Commerce, Year 4',          linkedin: '#', avatar: '📣',   section: 'Outreach' },
+      { id: 8, name: 'Riya Patel',      role: 'Sponsorship Lead',   dept: 'Commerce, Year 3',          linkedin: '#', avatar: '🤝',   section: 'Outreach' },
+      { id: 9, name: 'Arjun Kulkarni',  role: 'Logistics Head',     dept: 'BSc CS, Year 4',            linkedin: '#', avatar: '📦',   section: 'Logistics' },
+      { id: 10, name: 'Meera Iyer',     role: 'Volunteer Coord.',   dept: 'BSc IT, Year 2',            linkedin: '#', avatar: '🙌',   section: 'Logistics' },
+    ];
+    let nextMemberId = 11;
+    let editingMemberId = null;
+    let appFilter = 'all';
+
+    // Seed status onto registrations
+    registrations[0].status = 'approved';
+    registrations[1].status = 'pending';
+    registrations[2].status = 'approved';
+    registrations[3].status = 'pending';
+    registrations[4].status = 'rejected';
+
+    // ─── ADMIN TAB SWITCHER ──────────────────────────────────────────────────
+    function adminTab(name) {
+      // Hide all panels
+      document.querySelectorAll('.admin-panel-tab').forEach(p => p.classList.add('hidden'));
+      // Deactivate all tabs (both desktop and mobile)
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active-tab'));
+
+      // Show target panel
+      document.getElementById('panel-' + name).classList.remove('hidden');
+      // Activate matching tabs
+      const tabs = document.querySelectorAll('#tab-' + name + ', #tab-' + name + '-m');
+      tabs.forEach(t => t.classList.add('active-tab'));
+
+      // Refresh content
+      if (name === 'overview')      renderOverview();
+      if (name === 'applications')  renderApplications();
+      if (name === 'revenue')       renderRevenue();
+      if (name === 'team')          renderTeamGrid();
+    }
+
+    // ─── RENDER ADMIN DASHBOARD (entry point) ────────────────────────────────
+    function renderAdminDashboard() {
+      adminTab('overview');
+    }
+
+    // ─── OVERVIEW ────────────────────────────────────────────────────────────
+    function renderOverview() {
+      const totalRev = registrations.reduce((s, r) => s + r.fee, 0);
+      const totalPpl = registrations.reduce((s, r) => s + (r.mode === 'solo' ? 1 : r.mode === 'duo' ? 2 : 3), 0);
+      const approved = registrations.filter(r => r.status === 'approved').length;
+      const pending  = registrations.filter(r => r.status === 'pending').length;
+      const rejected = registrations.filter(r => r.status === 'rejected').length;
+
+      document.getElementById('admin-revenue').textContent    = '₹' + totalRev.toLocaleString('en-IN');
+      document.getElementById('admin-total-reg').textContent  = registrations.length;
+      document.getElementById('admin-total-ppl').textContent  = totalPpl;
+      document.getElementById('admin-slots').textContent      = Math.max(0, 500 - totalPpl);
+      document.getElementById('ov-approved').textContent      = approved;
+      document.getElementById('ov-pending').textContent       = pending;
+      document.getElementById('ov-rejected').textContent      = rejected;
+      document.getElementById('ov-solo').textContent          = registrations.filter(r => r.mode === 'solo').length;
+      document.getElementById('ov-duo').textContent           = registrations.filter(r => r.mode === 'duo').length;
+      document.getElementById('ov-trio').textContent          = registrations.filter(r => r.mode === 'trio').length;
+
+      const t1 = registrations.filter(r => r.track === 'AI for Good').length;
+      const t2 = registrations.filter(r => r.track === 'Intelligent Automation').length;
+      const t3 = registrations.filter(r => r.track === 'Open Innovation').length;
+      const maxT = Math.max(t1, t2, t3, 1);
+
+      document.getElementById('track-1-count').textContent = t1;
+      document.getElementById('track-2-count').textContent = t2;
+      document.getElementById('track-3-count').textContent = t3;
+      setTimeout(() => {
+        document.getElementById('track-1-bar').style.width = (t1 / maxT * 100) + '%';
+        document.getElementById('track-2-bar').style.width = (t2 / maxT * 100) + '%';
+        document.getElementById('track-3-bar').style.width = (t3 / maxT * 100) + '%';
+      }, 100);
+    }
+
+    // ─── APPLICATIONS ────────────────────────────────────────────────────────
+    function filterApps(f) {
+      appFilter = f;
+      document.querySelectorAll('.app-filter').forEach(b => b.classList.remove('active-filter'));
+      document.getElementById('filter-' + f).classList.add('active-filter');
+      renderApplications();
+    }
+
+    function renderApplications() {
+      const list = document.getElementById('applications-list');
+      const filtered = appFilter === 'all' ? registrations : registrations.filter(r => r.status === appFilter);
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="text-center py-16 border border-white/10 rounded-xl">
+          <p class="text-4xl mb-3">🔍</p>
+          <p class="font-fira text-slate-500 text-sm">[ No ${appFilter} applications ]</p>
+        </div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(r => {
+        const statusClass = { approved: 'status-approved', pending: 'status-pending', rejected: 'status-rejected' }[r.status] || 'status-pending';
+        const badgeClass  = { approved: 'badge-approved',  pending: 'badge-pending',  rejected: 'badge-rejected'  }[r.status] || 'badge-pending';
+        const statusIcon  = { approved: '✓', pending: '⏳', rejected: '✗' }[r.status] || '⏳';
+        const statusLabel = (r.status || 'pending').toUpperCase();
+        const modeIcons   = { solo: '👤', duo: '👥', trio: '👨‍👩‍👦' };
+        const teammates   = r.tm2 ? `<p class="font-fira text-xs text-slate-500 mt-1">+ ${escHtml(r.tm2)}${r.tm3 ? ', ' + escHtml(r.tm3) : ''}</p>` : '';
+
+        return `
+        <div class="app-card ${statusClass} p-5" data-id="${r.id}">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-start gap-4">
+              <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" style="background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.2);">
+                ${modeIcons[r.mode] || '👤'}
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="font-outfit font-bold text-white">${escHtml(r.name)}</p>
+                  <span class="font-fira text-xs px-2 py-0.5 rounded-full capitalize ${badgeClass}">${statusIcon} ${statusLabel}</span>
+                  <span class="font-fira text-xs text-slate-500 capitalize">${r.mode}</span>
+                </div>
+                <p class="font-fira text-xs text-slate-400 mt-0.5">${escHtml(r.email)} · ${escHtml(r.phone)}</p>
+                <p class="font-outfit text-xs text-slate-500 mt-0.5">${escHtml(r.college)}</p>
+                ${teammates}
+              </div>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap md:flex-nowrap shrink-0">
+              <div class="text-right mr-2">
+                <p class="font-fira text-xs text-slate-500">${escHtml(r.track)}</p>
+                <p class="font-outfit font-bold text-accent">₹${r.fee}</p>
+                <p class="font-fira text-xs text-slate-600">${r.date}</p>
+              </div>
+              ${r.status !== 'approved' ? `<button onclick="setStatus(${r.id},'approved')" class="px-4 py-2 rounded-lg font-fira text-xs border border-green-500/40 text-green-400 bg-green-500/5 hover:bg-green-500/15 transition-colors">✓ Approve</button>` : ''}
+              ${r.status !== 'rejected' ? `<button onclick="setStatus(${r.id},'rejected')" class="px-4 py-2 rounded-lg font-fira text-xs border border-red-500/40 text-red-400 bg-red-500/5 hover:bg-red-500/15 transition-colors">✗ Reject</button>` : ''}
+              ${r.status !== 'pending'  ? `<button onclick="setStatus(${r.id},'pending')"  class="px-4 py-2 rounded-lg font-fira text-xs border border-yellow-500/30 text-yellow-400 bg-yellow-500/5 hover:bg-yellow-500/15 transition-colors">↩ Reset</button>` : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function setStatus(id, status) {
+      const reg = registrations.find(r => r.id === id);
+      if (reg) { reg.status = status; renderApplications(); renderOverview(); }
+    }
+
+    // ─── REVENUE ─────────────────────────────────────────────────────────────
+    function renderRevenue() {
+      const total    = registrations.reduce((s, r) => s + r.fee, 0);
+      const approved = registrations.filter(r => r.status === 'approved').reduce((s, r) => s + r.fee, 0);
+      const pending  = registrations.filter(r => r.status === 'pending').reduce((s, r) => s + r.fee, 0);
+      const rejected = registrations.filter(r => r.status === 'rejected').reduce((s, r) => s + r.fee, 0);
+
+      document.getElementById('rev-total').textContent    = '₹' + total.toLocaleString('en-IN');
+      document.getElementById('rev-approved').textContent = '₹' + approved.toLocaleString('en-IN');
+      document.getElementById('rev-pending').textContent  = '₹' + pending.toLocaleString('en-IN');
+      document.getElementById('rev-rejected').textContent = '₹' + rejected.toLocaleString('en-IN');
+      document.getElementById('rev-log-count').textContent = registrations.length + ' transactions';
+
+      // By track
+      const tracks = ['AI for Good', 'Intelligent Automation', 'Open Innovation'];
+      const trackColors = ['#2dd4bf', '#f97316', '#2dd4bf'];
+      const trackRev = tracks.map(t => registrations.filter(r => r.track === t).reduce((s, r) => s + r.fee, 0));
+      const maxTR = Math.max(...trackRev, 1);
+      document.getElementById('rev-by-track').innerHTML = tracks.map((t, i) => `
+        <div>
+          <div class="flex justify-between mb-1">
+            <span class="font-outfit text-sm text-slate-300">${t}</span>
+            <span class="font-fira text-xs text-accent">₹${trackRev[i].toLocaleString('en-IN')}</span>
+          </div>
+          <div class="rev-bar"><div class="rev-bar-fill" style="width:${trackRev[i]/maxTR*100}%;background:${trackColors[i]};"></div></div>
+        </div>
+      `).join('');
+
+      // By mode
+      const modes = ['solo','duo','trio'];
+      const modeLabels = { solo:'Solo (₹25/team)', duo:'Duo (₹50/team)', trio:'Trio (₹75/team)' };
+      const modeColors2 = ['#2dd4bf','#f97316','#94a3b8'];
+      const modeRev = modes.map(m => registrations.filter(r => r.mode === m).reduce((s, r) => s + r.fee, 0));
+      const maxMR = Math.max(...modeRev, 1);
+      document.getElementById('rev-by-mode').innerHTML = modes.map((m, i) => `
+        <div>
+          <div class="flex justify-between mb-1">
+            <span class="font-outfit text-sm text-slate-300">${modeLabels[m]}</span>
+            <span class="font-fira text-xs text-accent">₹${modeRev[i].toLocaleString('en-IN')}</span>
+          </div>
+          <div class="rev-bar"><div class="rev-bar-fill" style="width:${modeRev[i]/maxMR*100}%;background:${modeColors2[i]};"></div></div>
+        </div>
+      `).join('');
+
+      // Transaction log
+      const statusBadge = s => {
+        const map = { approved: 'badge-approved', pending: 'badge-pending', rejected: 'badge-rejected' };
+        const icon = { approved: '✓', pending: '⏳', rejected: '✗' };
+        return `<span class="font-fira text-xs px-2 py-0.5 rounded-full ${map[s]||'badge-pending'}">${icon[s]||'⏳'} ${(s||'pending').toUpperCase()}</span>`;
+      };
+      document.getElementById('rev-table-body').innerHTML = registrations.map((r, i) => `
+        <tr>
+          <td class="text-slate-500 font-fira">TXN-${String(r.id).padStart(4,'0')}</td>
+          <td class="text-white">${escHtml(r.name)}</td>
+          <td class="text-slate-400 capitalize">${r.mode}</td>
+          <td class="text-secondary" style="font-size:0.75rem;">${escHtml(r.track)}</td>
+          <td class="text-accent font-semibold">₹${r.fee}</td>
+          <td>${statusBadge(r.status)}</td>
+          <td class="text-slate-500">${r.date}</td>
+        </tr>
+      `).join('');
+    }
+
+    // ─── SITE EDITOR ─────────────────────────────────────────────────────────
+    function applyEditorChanges() {
+      // Hero date badge
+      const dateBadges = document.querySelectorAll('#public-site .status-date-badge');
+      // We'll target by content for simplicity
+      const heroDateEls = document.querySelectorAll('#public-site .font-fira');
+      const dateVal = document.getElementById('ed-date').value.trim();
+      // Find and update the date pill in hero
+      document.querySelectorAll('#public-site span, #public-site p, #public-site div').forEach(el => {
+        if (el.childElementCount === 0) {
+          if (el.textContent.includes('AUG') && el.textContent.includes('MUMBAI')) {
+            el.textContent = '📅 ' + dateVal;
+          }
+        }
+      });
+
+      // Venue in contact section
+      document.querySelectorAll('#public-site p, #public-site span').forEach(el => {
+        if (el.childElementCount === 0 && el.textContent.includes('NM College, Vile Parle W, Mumbai')) {
+          el.textContent = document.getElementById('ed-venue').value.trim();
+        }
+        if (el.childElementCount === 0 && el.textContent.includes('hackathon@nmcollege.ac.in')) {
+          el.textContent = document.getElementById('ed-email').value.trim();
+        }
+        if (el.childElementCount === 0 && el.textContent.includes('@byte_brainiacs')) {
+          el.textContent = document.getElementById('ed-insta').value.trim();
+        }
+      });
+
+      // Prize amounts
+      const p1 = parseInt(document.getElementById('ed-prize1').value) || 50000;
+      const p2 = parseInt(document.getElementById('ed-prize2').value) || 25000;
+      const p3 = parseInt(document.getElementById('ed-prize3').value) || 10000;
+      const formatINR = n => n >= 1000 ? '₹' + (n/1000) + 'K' : '₹' + n;
+      document.querySelectorAll('#public-site p').forEach(el => {
+        if (el.childElementCount === 0) {
+          if (el.textContent === '₹50K') el.textContent = formatINR(p1);
+          if (el.textContent === '₹25K') el.textContent = formatINR(p2);
+          if (el.textContent === '₹10K') el.textContent = formatINR(p3);
+          if (el.textContent === '₹85K') el.textContent = formatINR(p1 + p2 + p3);
+        }
+      });
+
+      // Hero subtitle
+      document.querySelectorAll('#public-site p').forEach(el => {
+        if (el.childElementCount === 0 && el.textContent === 'NM College presents') {
+          el.textContent = document.getElementById('ed-subtitle').value.trim();
+        }
+      });
+
+      const savedMsg = document.getElementById('editor-saved-msg');
+      savedMsg.classList.remove('hidden');
+      setTimeout(() => savedMsg.classList.add('hidden'), 3000);
+    }
+
+    function resetEditorChanges() {
+      document.getElementById('ed-date').value     = 'AUG 2025 · MUMBAI';
+      document.getElementById('ed-venue').value    = 'NM College, Vile Parle W, Mumbai';
+      document.getElementById('ed-email').value    = 'hackathon@nmcollege.ac.in';
+      document.getElementById('ed-insta').value    = '@byte_brainiacs';
+      document.getElementById('ed-prize1').value   = '50000';
+      document.getElementById('ed-prize2').value   = '25000';
+      document.getElementById('ed-prize3').value   = '10000';
+      document.getElementById('ed-capacity').value = '500';
+      document.getElementById('ed-subtitle').value = 'NM College presents';
+    }
+
+    // ─── TEAM MANAGEMENT ─────────────────────────────────────────────────────
+    function renderTeamGrid() {
+      const sectionOrder = ['Core', 'Tech', 'Design', 'Outreach', 'Logistics'];
+      const sectionIcons = { Core: '🔷', Tech: '💻', Design: '🎨', Outreach: '📣', Logistics: '📦' };
+      const sectionCls   = { Core: 'section-core', Tech: 'section-tech', Design: 'section-design', Outreach: 'section-outreach', Logistics: 'section-logistics' };
+      const grid = document.getElementById('team-grid');
+
+      if (teamMembers.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-16 border border-white/10 rounded-xl">
+          <p class="text-4xl mb-3">👥</p>
+          <p class="font-fira text-slate-500 text-sm">[ No team members yet. Add one! ]</p>
+        </div>`;
+        return;
+      }
+
+      // Group by section, preserve order
+      let html = '';
+      sectionOrder.forEach(sec => {
+        const members = teamMembers.filter(m => m.section === sec);
+        if (members.length === 0) return;
+        html += `<div class="col-span-full mb-2 mt-4 first:mt-0">
+          <span class="font-fira text-xs px-3 py-1 rounded-full ${sectionCls[sec]}">${sectionIcons[sec]} ${sec} Team</span>
+        </div>`;
+        members.forEach(m => {
+          html += `
+          <div class="team-card p-5">
+            <div class="flex items-start justify-between mb-4">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl" style="background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.15);">${m.avatar || '🧑'}</div>
+              <div class="flex gap-1">
+                <button onclick="openEditMember(${m.id})" class="w-7 h-7 rounded-lg border border-white/10 flex items-center justify-center text-slate-500 hover:text-secondary hover:border-secondary/30 transition-colors" title="Edit">✏</button>
+                <button onclick="deleteMember(${m.id})" class="w-7 h-7 rounded-lg border border-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 hover:border-red-500/30 transition-colors" title="Remove">✕</button>
+              </div>
+            </div>
+            <p class="font-outfit font-bold text-white text-base leading-tight">${escHtml(m.name)}</p>
+            <p class="font-fira text-xs text-secondary mt-1">${escHtml(m.role)}</p>
+            <p class="font-outfit text-xs text-slate-500 mt-1 leading-tight">${escHtml(m.dept)}</p>
+            ${m.linkedin && m.linkedin !== '#' ? `<a href="${escHtml(m.linkedin)}" target="_blank" class="inline-flex items-center gap-1 font-fira text-xs text-slate-600 hover:text-secondary mt-3 transition-colors">🔗 LinkedIn</a>` : ''}
+          </div>`;
+        });
+      });
+
+      grid.innerHTML = html;
+    }
+
+    function openAddMember() {
+      editingMemberId = null;
+      document.getElementById('modal-title').textContent = '// ADD_MEMBER';
+      document.getElementById('mm-name').value    = '';
+      document.getElementById('mm-role').value    = '';
+      document.getElementById('mm-dept').value    = '';
+      document.getElementById('mm-linkedin').value = '';
+      document.getElementById('mm-avatar').value  = '🧑';
+      document.getElementById('mm-section').value = 'Core';
+      document.getElementById('member-modal').classList.remove('hidden');
+    }
+
+    function openEditMember(id) {
+      const m = teamMembers.find(t => t.id === id);
+      if (!m) return;
+      editingMemberId = id;
+      document.getElementById('modal-title').textContent = '// EDIT_MEMBER';
+      document.getElementById('mm-name').value     = m.name;
+      document.getElementById('mm-role').value     = m.role;
+      document.getElementById('mm-dept').value     = m.dept;
+      document.getElementById('mm-linkedin').value = m.linkedin || '';
+      document.getElementById('mm-avatar').value   = m.avatar || '🧑';
+      document.getElementById('mm-section').value  = m.section || 'Core';
+      document.getElementById('member-modal').classList.remove('hidden');
+    }
+
+    function closeMemberModal() {
+      document.getElementById('member-modal').classList.add('hidden');
+    }
+
+    function saveMember() {
+      const name    = document.getElementById('mm-name').value.trim();
+      const role    = document.getElementById('mm-role').value.trim();
+      if (!name || !role) { alert('Name and Role are required.'); return; }
+
+      const data = {
+        name,
+        role,
+        dept:     document.getElementById('mm-dept').value.trim(),
+        linkedin: document.getElementById('mm-linkedin').value.trim() || '#',
+        avatar:   document.getElementById('mm-avatar').value.trim() || '🧑',
+        section:  document.getElementById('mm-section').value,
+      };
+
+      if (editingMemberId) {
+        const idx = teamMembers.findIndex(t => t.id === editingMemberId);
+        if (idx !== -1) teamMembers[idx] = { ...teamMembers[idx], ...data };
+      } else {
+        teamMembers.push({ id: nextMemberId++, ...data });
+      }
+
+      closeMemberModal();
+      renderTeamGrid();
+    }
+
+    function deleteMember(id) {
+      if (!confirm('Remove this team member?')) return;
+      teamMembers = teamMembers.filter(t => t.id !== id);
+      renderTeamGrid();
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ─── NAV SCROLL EFFECT ───────────────────────────────────────────────────
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('nav');
+      if (window.scrollY > 50) {
+        nav.style.borderBottomColor = 'rgba(45, 212, 191, 0.15)';
+      } else {
+        nav.style.borderBottomColor = 'rgba(45, 212, 191, 0.1)';
+      }
+    });
+
+    // ─── MOBILE NAV ──────────────────────────────────────────────────────────
+    // Smooth close for mobile links
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // ─── INTERSECTION OBSERVER (fade-in sections) ─────────────────────────
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('section').forEach(s => {
+      s.style.opacity = '0';
+      s.style.transform = 'translateY(24px)';
+      s.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+      observer.observe(s);
+    });
+
+  </script>
+</body>
+</html>
